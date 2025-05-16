@@ -24,12 +24,12 @@ public class Exercise {
     private String solutionCode;
 
     /** List of test cases used to evaluate the user's code */
-    private List<TestCase> testCases;
+    private List<Test> testCases;
 
     // Constructors
     public Exercise() {}
 
-    public Exercise(int id, String title, String language, String description, String solutionCode, List<TestCase> testCases) {
+    public Exercise(int id, String title, String language, String description, String solutionCode, List<Test> testCases) {
         this.id = id;
         this.title = title;
         this.language = language;
@@ -79,11 +79,11 @@ public class Exercise {
         this.solutionCode = solutionCode;
     }
 
-    public List<TestCase> getTestCases() {
+    public List<Test> getTestCases() {
         return testCases;
     }
 
-    public void setTestCases(List<TestCase> testCases) {
+    public void setTestCases(List<Test> testCases) {
         this.testCases = testCases;
     }
 }

@@ -64,7 +64,7 @@ public class Test {
         return "Test{" +
                 "id=" + id +
                 ", input='" + input + '\'' +
-                ", expectedOutput='" + epxectedOutput + '\'' +
+                ", expectedOutput='" + expectedOutput + '\'' +
                 '}';
     }
 }
