@@ -1,0 +1,51 @@
+package com.example.projet_java;
+
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+
+
+    public class UserDAO {
+
+        public boolean addUser(User user) {
+            String sql = "INSERT INTO User (username, email, password_hash) VALUES (?, ?, ?)";
+
+            try (Connection conn = DatabaseConnection.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+                stmt.setString(1, user.getUsername());
+                stmt.setString(2, user.getEmail());
+                stmt.setString(3, user.getPasswordHash());
+
+                int rowsInserted = stmt.executeUpdate();
+
+                return rowsInserted > 0;
+
+            } catch (SQLException e) {
+                System.out.println("❌ Erreur lors de l'ajout de l'utilisateur : " + e.getMessage());
+                return false;
+            }
+        }
+
+        public boolean checkLogin(String username, String passwordHash) {
+            String sql = "SELECT * FROM User WHERE username = ? AND password_hash = ?";
+
+            try (Connection conn = DatabaseConnection.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+                stmt.setString(1, username);
+                stmt.setString(2, passwordHash);
+
+                ResultSet rs = stmt.executeQuery();
+                return rs.next(); // ✅ true si un utilisateur est trouvé
+
+            } catch (SQLException e) {
+                System.out.println("❌ Erreur de connexion : " + e.getMessage());
+                return false;
+            }
+        }
+    }
+
+

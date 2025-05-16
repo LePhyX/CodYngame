@@ -1,6 +1,7 @@
 
 package com.example.projet_java;
 
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -9,7 +10,7 @@ public class DatabaseConnection {
 
 
     private static final String URL = "jdbc:mysql://localhost:3306/codingame";  // URL de la base de données
-    private static final String USER = "root";  // Nom d'utilisateur de la base de données
+    private static final String USER = "maiki";  // Nom d'utilisateur de la base de données
     private static final String PASSWORD = "maikimaik";  // Le mot de passe de la base de données
 
     private static Connection connection;
@@ -40,3 +41,4 @@ public class DatabaseConnection {
         }
     }
 }
+
