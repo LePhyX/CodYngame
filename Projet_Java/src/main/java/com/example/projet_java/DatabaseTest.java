@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class DatabaseTest {
 
     public static void main(String[] args) {
-        String url = "jdbc:mysql://localhost:3307/codingame"; // ⚠️ change ça
+        String url = "jdbc:mysql://localhost:3307/codingame"; //
         String user = "root";
         String password = "ProjetJava2526!!!";
 
