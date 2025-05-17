@@ -54,13 +54,17 @@ public class FusionneurCode {
         System.out.println("----------------------------------");
         
         // Option 1: Entrer le code directement
-        System.out.print("Voulez-vous entrer le code directement (D) ou charger des fichiers (F)? ");
-        String choix = scanner.nextLine().toUpperCase();
+        System.out.println("Choisissez pour le code de base:");
+        System.out.println("1. Entrer directement");
+        System.out.println("2. Charger depuis un fichier");
+        System.out.print("Votre choix (1/2): ");
+        String choixBase = scanner.nextLine();
         
         String codeBase = "";
         String codeAjout = "";
         
-        if (choix.equals("D")) {
+        // Obtention du code de base
+        if (choixBase.equals("1")) {
             System.out.println("\nEntrez le code de base (terminez par une ligne contenant uniquement 'FIN'):");
             StringBuilder lignesBase = new StringBuilder();
             while (true) {
@@ -71,7 +75,28 @@ public class FusionneurCode {
                 lignesBase.append(ligne).append("\n");
             }
             codeBase = lignesBase.toString();
-            
+        } else if (choixBase.equals("2")) {
+            System.out.print("\nNom du fichier de base: ");
+            String fichierBase = scanner.nextLine();
+            try {
+                codeBase = new String(Files.readAllBytes(Paths.get(fichierBase)));
+            } catch (IOException e) {
+                System.out.println("Erreur: Impossible d'ouvrir " + fichierBase);
+                System.exit(1);
+            }
+        } else {
+            System.out.println("Choix non reconnu. Fin du programme.");
+            System.exit(1);
+        }
+        
+        // Obtention du code à ajouter
+        System.out.println("\nChoisissez pour le code à ajouter:");
+        System.out.println("1. Entrer directement");
+        System.out.println("2. Charger depuis un fichier");
+        System.out.print("Votre choix (1/2): ");
+        String choixAjout = scanner.nextLine();
+        
+        if (choixAjout.equals("1")) {
             System.out.println("\nEntrez le code à ajouter (terminez par une ligne contenant uniquement 'FIN'):");
             StringBuilder lignesAjout = new StringBuilder();
             while (true) {
@@ -82,17 +107,8 @@ public class FusionneurCode {
                 lignesAjout.append(ligne).append("\n");
             }
             codeAjout = lignesAjout.toString();
-        } else if (choix.equals("F")) {
-            System.out.print("\nNom du fichier de base: ");
-            String fichierBase = scanner.nextLine();
-            try {
-                codeBase = new String(Files.readAllBytes(Paths.get(fichierBase)));
-            } catch (IOException e) {
-                System.out.println("Erreur: Impossible d'ouvrir " + fichierBase);
-                System.exit(1);
-            }
-            
-            System.out.print("Nom du fichier à ajouter: ");
+        } else if (choixAjout.equals("2")) {
+            System.out.print("\nNom du fichier à ajouter: ");
             String fichierAjout = scanner.nextLine();
             try {
                 codeAjout = new String(Files.readAllBytes(Paths.get(fichierAjout)));
