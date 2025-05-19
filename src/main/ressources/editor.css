@@ -1,0 +1,25 @@
+.keyword {
+    font-weight: bold;
+    -fx-font-weight: bold;
+    fill: #cc7832;
+    -fx-fill: #cc7832;
+}
+
+
+.comment {
+    font-style: italic;
+    -fx-font-style: italic;
+    fill: #808080;
+    -fx-fill: #808080;
+}
+
+
+.string {
+    fill: #6a8759;
+    -fx-fill: #6a8759;
+}
+
+.paren, .brace, .bracket, .semicolon {
+    fill: #a9b7c6;
+    -fx-fill: #a9b7c6;
+}
