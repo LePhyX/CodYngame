@@ -1,4 +1,4 @@
-package com.syntaxeditor;
+package ui;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 import java.util.Collections;
 
 
-public class MainApp extends Application {
+public class ExerrciseResolutionView extends Application {
 
     private final CodeArea codeArea = new CodeArea();
     private final Label languageLabel = new Label("Language: None");
@@ -85,13 +85,21 @@ public class MainApp extends Application {
     private void switchLanguage(String language) {
         currentLanguage = language;
         languageLabel.setText("Language: " + language);
-        // → Syntax highlighting will be handled here later
+
+        // Remove previous listener by clearing and re-setting the text
+        String content = codeArea.getText();
+        codeArea.clear();
+        codeArea.replaceText(content);
+
         if (currentLanguage.equals("Java")) {
             codeArea.textProperty().addListener((obs, oldText, newText) -> {
-            codeArea.setStyleSpans(0, computeJavaHighlighting(newText));
+                codeArea.setStyleSpans(0, computeJavaHighlighting(newText));
+            });
+        } else if (currentLanguage.equals("Python")) {
+            codeArea.textProperty().addListener((obs, oldText, newText) -> {
+                codeArea.setStyleSpans(0, computePythonHighlighting(newText));
             });
         }
-
     }
 
     private void updateButtonStyles(Button selectedButton) {
@@ -120,6 +128,13 @@ public class MainApp extends Application {
             "throw", "throws", "transient", "try", "void", "volatile", "while"
     };
 
+    private static final String[] PYTHON_KEYWORDS = new String[]{
+            "False", "class", "finally", "is", "return", "None", "continue", "for", "lambda", "try",
+            "True", "def", "from", "nonlocal", "while", "and", "del", "global", "not", "with",
+            "as", "elif", "if", "or", "yield", "assert", "else", "import", "pass", "break", "except", "in", "raise"
+    };
+
+    //RegEx Java
     private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", JAVA_KEYWORDS) + ")\\b";
     private static final String PAREN_PATTERN = "\\(|\\)";
     private static final String BRACE_PATTERN = "\\{|\\}";
@@ -138,6 +153,17 @@ public class MainApp extends Application {
                     + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
     );
 
+    // RegEx Python
+    private static final String PY_KEYWORD_PATTERN = "\\b(" + String.join("|", PYTHON_KEYWORDS) + ")\\b";
+    private static final String PY_COMMENT_PATTERN = "#[^\n]*";
+    private static final String PY_STRING_PATTERN = "\"([^\"\\\\]|\\\\.)*\"|'([^'\\\\]|\\\\.)*'";
+
+    private static final Pattern PYTHON_PATTERN = Pattern.compile(
+            "(?<KEYWORD>" + PY_KEYWORD_PATTERN + ")"
+            + "|(?<COMMENT>" + PY_COMMENT_PATTERN + ")"
+            + "|(?<STRING>" + PY_STRING_PATTERN + ")"
+    );
+
     // Compute and apply style spans based on Java regex
     private StyleSpans<Collection<String>> computeJavaHighlighting(String text) {
         Matcher matcher = JAVA_PATTERN.matcher(text);
@@ -152,6 +178,25 @@ public class MainApp extends Application {
                     matcher.group("SEMICOLON") != null ? "semicolon" :
                     matcher.group("STRING") != null ? "string" :
                     matcher.group("COMMENT") != null ? "comment" :
+                    null;
+            assert styleClass != null;
+            spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
+            spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
+            lastKwEnd = matcher.end();
+        }
+        spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
+        return spansBuilder.create();
+    }
+
+    private StyleSpans<Collection<String>> computePythonHighlighting(String text) {
+        Matcher matcher = PYTHON_PATTERN.matcher(text);
+        int lastKwEnd = 0;
+        StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
+        while (matcher.find()) {
+            String styleClass =
+                    matcher.group("KEYWORD") != null ? "keyword" :
+                    matcher.group("COMMENT") != null ? "comment" :
+                    matcher.group("STRING") != null ? "string" :
                     null;
             assert styleClass != null;
             spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
