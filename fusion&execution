@@ -1,0 +1,337 @@
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+
+/**
+ * Programme permettant de fusionner deux codes source et d'exécuter le résultat.
+ */
+public class FusionneurCode {
+    
+    /**
+     * Classe CodeExecutor intégrée directement dans la classe FusionneurCode
+     * Cette classe est responsable de l'exécution du code dans différents langages.
+     */
+    public static class CodeExecutor {
+
+        /**
+         * Holds the result of code execution.
+         */
+        public static class ExecutionResult {
+            /** Output written to standard output (stdout) by the program */
+            public String stdout;
+
+            /** Output written to standard error (stderr) by the program */
+            public String stderr;
+
+            /** Exit code of the process (0 usually means success) */
+            public int exitCode;
+        }
+
+        /**
+         * Compiles and executes the provided source code in the selected language,
+         * feeding the given input to the program.
+         *
+         * @param code     The source code written by the user
+         * @param language The language of the code ("java", "c", "python")
+         * @param input    Input string to send to standard input (stdin)
+         * @return An ExecutionResult containing stdout, stderr, and the exit code
+         * @throws IOException If an I/O error occurs
+         * @throws InterruptedException If the execution is interrupted
+         */
+        public static ExecutionResult runCode(String code, String language, String input)
+                throws IOException, InterruptedException {
+
+            // Create a temporary directory to store source and compiled files
+            Path tempDir = Files.createTempDirectory("codeyngame_");
+
+            File sourceFile;
+            List<String> compileCmd = new ArrayList<>();
+            List<String> execCmd = new ArrayList<>();
+
+            // Determine how to compile and execute based on the language
+            switch (language.toLowerCase()) {
+                case "java":
+                    // Save code to Main.java
+                    sourceFile = tempDir.resolve("Main.java").toFile();
+                    Files.writeString(sourceFile.toPath(), code);
+
+                    // Compile using javac
+                    compileCmd = List.of("javac", sourceFile.getAbsolutePath());
+
+                    // Command to run compiled Java class
+                    execCmd = List.of("java", "-cp", tempDir.toString(), "Main");
+                    break;
+
+                case "c":
+                    // Save code to main.c
+                    sourceFile = tempDir.resolve("main.c").toFile();
+                    Files.writeString(sourceFile.toPath(), code);
+
+                    // Compile using gcc
+                    compileCmd = List.of("gcc", sourceFile.getAbsolutePath(), "-o",
+                                         tempDir.resolve("main").toString());
+
+                    // Command to run compiled C program
+                    execCmd = List.of(tempDir.resolve("main").toString());
+                    break;
+
+                case "python":
+                    // Save code to main.py (Python is interpreted, no compile step)
+                    sourceFile = tempDir.resolve("main.py").toFile();
+                    Files.writeString(sourceFile.toPath(), code);
+
+                    // Command to interpret Python script
+                    execCmd = List.of("python", sourceFile.getAbsolutePath());
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Unsupported language: " + language);
+            }
+
+            // Compile the code if a compile command is defined
+            if (!compileCmd.isEmpty()) {
+                Process compile = new ProcessBuilder(compileCmd)
+                        .redirectErrorStream(true)
+                        .start();
+                compile.waitFor(); // Wait for the compiler to finish
+            }
+
+            // Execute the program
+            ProcessBuilder execBuilder = new ProcessBuilder(execCmd);
+            Process process = execBuilder.start();
+
+            // Feed the input string to the program's standard input
+            try (BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(process.getOutputStream()))) {
+                writer.write(input);
+                writer.flush();
+            }
+
+            // Capture the standard output and standard error of the process
+            String stdout = new String(process.getInputStream().readAllBytes());
+            String stderr = new String(process.getErrorStream().readAllBytes());
+
+            // Wait for the process to finish and retrieve the exit code
+            int exitCode = process.waitFor();
+
+            // Package the results into an ExecutionResult instance
+            ExecutionResult result = new ExecutionResult();
+            result.stdout = stdout;
+            result.stderr = stderr;
+            result.exitCode = exitCode;
+
+            return result;
+        }
+    }
+    
+    /**
+     * Fusionne un code de base avec un code à ajouter.
+     * 
+     * @param codeBase Le code source de base
+     * @param codeAjout Le code source à ajouter
+     * @param position Où ajouter le nouveau code ("debut", "fin", ou "ligne:N")
+     * @return Le code fusionné
+     */
+    public static String fusionnerCodes(String codeBase, String codeAjout, String position) {
+        if (position.equals("debut")) {
+            return codeAjout + "\n" + codeBase;
+        } else if (position.equals("fin")) {
+            return codeBase + "\n" + codeAjout;
+        } else if (position.startsWith("ligne:")) {
+            try {
+                int numeroLigne = Integer.parseInt(position.substring(6));
+                String[] lignes = codeBase.split("\n");
+                
+                // Vérifier si le numéro de ligne est valide
+                if (numeroLigne < 0 || numeroLigne > lignes.length) {
+                    return "Erreur: Le numéro de ligne " + numeroLigne + " est invalide.";
+                }
+                
+                // Insérer le code à la ligne spécifiée
+                StringBuilder resultat = new StringBuilder();
+                for (int i = 0; i < lignes.length; i++) {
+                    if (i == numeroLigne) {
+                        resultat.append(codeAjout).append("\n");
+                    }
+                    resultat.append(lignes[i]).append("\n");
+                }
+                return resultat.toString();
+            } catch (NumberFormatException e) {
+                return "Erreur: Format de position incorrect. Utilisez 'ligne:N' où N est un nombre entier.";
+            }
+        } else {
+            return "Erreur: Position non reconnue. Utilisez 'debut', 'fin', ou 'ligne:N'.";
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("Programme de fusion de codes source");
+        System.out.println("----------------------------------");
+        
+        System.out.println("Choisissez pour le code de base:");
+        System.out.println("1. Entrer directement");
+        System.out.println("2. Charger depuis un fichier");
+        System.out.print("Votre choix (1/2): ");
+        String choixBase = scanner.nextLine();
+        
+        String codeBase = "";
+        String codeAjout = "";
+        
+        // Obtention du code de base
+        if (choixBase.equals("1")) {
+            System.out.println("\nEntrez le code de base (terminez par une ligne contenant uniquement 'FIN'):");
+            StringBuilder lignesBase = new StringBuilder();
+            while (true) {
+                String ligne = scanner.nextLine();
+                if (ligne.equals("FIN")) {
+                    break;
+                }
+                lignesBase.append(ligne).append("\n");
+            }
+            codeBase = lignesBase.toString();
+        } else if (choixBase.equals("2")) {
+            System.out.print("\nNom du fichier de base: ");
+            String fichierBase = scanner.nextLine();
+            try {
+                codeBase = new String(Files.readAllBytes(Paths.get(fichierBase)));
+            } catch (IOException e) {
+                System.out.println("Erreur: Impossible d'ouvrir " + fichierBase);
+                System.exit(1);
+            }
+        } else {
+            System.out.println("Choix non reconnu. Fin du programme.");
+            System.exit(1);
+        }
+        
+        // Obtention du code à ajouter
+        System.out.println("\nChoisissez pour le code à ajouter:");
+        System.out.println("1. Entrer directement");
+        System.out.println("2. Charger depuis un fichier");
+        System.out.print("Votre choix (1/2): ");
+        String choixAjout = scanner.nextLine();
+        
+        if (choixAjout.equals("1")) {
+            System.out.println("\nEntrez le code à ajouter (terminez par une ligne contenant uniquement 'FIN'):");
+            StringBuilder lignesAjout = new StringBuilder();
+            while (true) {
+                String ligne = scanner.nextLine();
+                if (ligne.equals("FIN")) {
+                    break;
+                }
+                lignesAjout.append(ligne).append("\n");
+            }
+            codeAjout = lignesAjout.toString();
+        } else if (choixAjout.equals("2")) {
+            System.out.print("\nNom du fichier à ajouter: ");
+            String fichierAjout = scanner.nextLine();
+            try {
+                codeAjout = new String(Files.readAllBytes(Paths.get(fichierAjout)));
+            } catch (IOException e) {
+                System.out.println("Erreur: Impossible d'ouvrir " + fichierAjout);
+                System.exit(1);
+            }
+        } else {
+            System.out.println("Choix non reconnu. Fin du programme.");
+            System.exit(1);
+        }
+        
+        // Choisir la position d'insertion
+        System.out.println("\nOù voulez-vous insérer le code?");
+        System.out.println("1. Au début du code de base");
+        System.out.println("2. À la fin du code de base");
+        System.out.println("3. À une ligne spécifique");
+        System.out.print("Choisissez (1/2/3): ");
+        String option = scanner.nextLine();
+        
+        String position;
+        if (option.equals("1")) {
+            position = "debut";
+        } else if (option.equals("2")) {
+            position = "fin";
+        } else if (option.equals("3")) {
+            System.out.print("Numéro de ligne: ");
+            String numero = scanner.nextLine();
+            position = "ligne:" + numero;
+        } else {
+            System.out.println("Option non reconnue. Utilisation de la fin par défaut.");
+            position = "fin";
+        }
+        
+        // Fusionner les codes
+        String resultat = fusionnerCodes(codeBase, codeAjout, position);
+        
+        // Afficher le résultat
+        System.out.println("\nCode fusionné:");
+        System.out.println("--------------");
+        System.out.println(resultat);
+        
+        // Option pour sauvegarder le résultat
+        System.out.print("\nVoulez-vous sauvegarder le résultat (O/N)? ");
+        if (scanner.nextLine().toUpperCase().equals("O")) {
+            System.out.print("Nom du fichier de sortie: ");
+            String fichierSortie = scanner.nextLine();
+            try {
+                Files.write(Paths.get(fichierSortie), resultat.getBytes());
+                System.out.println("Code sauvegardé dans " + fichierSortie);
+                
+                // Option pour exécuter le code fusionné
+                System.out.print("\nVoulez-vous exécuter le code fusionné (O/N)? ");
+                if (scanner.nextLine().toUpperCase().equals("O")) {
+                    System.out.println("\nChoisissez le langage du code:");
+                    System.out.println("1. Java");
+                    System.out.println("2. C");
+                    System.out.println("3. Python");
+                    System.out.print("Votre choix (1/2/3): ");
+                    String choixLangage = scanner.nextLine();
+                    
+                    String langage;
+                    switch (choixLangage) {
+                        case "1": langage = "java"; break;
+                        case "2": langage = "c"; break;
+                        case "3": langage = "python"; break;
+                        default: 
+                            System.out.println("Langage non reconnu. Utilisation de Java par défaut.");
+                            langage = "java";
+                            break;
+                    }
+                    
+                    System.out.println("\nEntrez les données d'entrée pour le programme (terminez par une ligne contenant uniquement 'FIN'):");
+                    StringBuilder entree = new StringBuilder();
+                    while (true) {
+                        String ligne = scanner.nextLine();
+                        if (ligne.equals("FIN")) {
+                            break;
+                        }
+                        entree.append(ligne).append("\n");
+                    }
+                    
+                    try {
+                        System.out.println("\nExécution du code...");
+                        CodeExecutor.ExecutionResult executionResult = 
+                            CodeExecutor.runCode(resultat, langage, entree.toString());
+                        
+                        System.out.println("\nRésultat de l'exécution:");
+                        System.out.println("======================");
+                        System.out.println("Code de sortie: " + executionResult.exitCode);
+                        System.out.println("\nSortie standard (stdout):");
+                        System.out.println(executionResult.stdout);
+                        
+                        if (!executionResult.stderr.isEmpty()) {
+                            System.out.println("\nErreurs (stderr):");
+                            System.out.println(executionResult.stderr);
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Erreur lors de l'exécution du code: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            } catch (IOException e) {
+                System.out.println("Erreur: Impossible d'écrire dans " + fichierSortie);
+            }
+        }
+        
+        scanner.close();
+    }
+}
