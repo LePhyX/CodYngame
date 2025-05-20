@@ -1,0 +1,76 @@
+-- Création de la base
+DROP DATABASE IF EXISTS codingame;
+CREATE DATABASE codingame;
+USE codingame;
+ 
+-- Table des utilisateurs
+CREATE TABLE User (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    email TEXT,
+    password_hash TEXT,
+    score INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+ 
+-- Table des administrateurs
+CREATE TABLE Admin (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES User(id)
+);
+ 
+-- Table des exercices (sans attempts_count ni success_count)
+CREATE TABLE Exercise (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    type TEXT CHECK(type IN ('STDIN_STDOUT', 'INCLUDE')) NOT NULL,
+    exercise_image BLOB,
+    solution_image BLOB,
+    solution TEXT,
+    BaseCode TEXT,
+    LineCode int,
+    difficulty INT CHECK(difficulty IN (1, 2, 3)) NOT NULL
+);
+ 
+-- Table des langages
+CREATE TABLE Language (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+ 
+-- Table de liaison entre exercices et langages
+CREATE TABLE ExerciseLanguage (
+    exercise_id INT,
+    language_id INT,
+    PRIMARY KEY (exercise_id, language_id),
+    FOREIGN KEY (exercise_id) REFERENCES Exercise(id),
+    FOREIGN KEY (language_id) REFERENCES Language(id)
+);
+ 
+-- Table des soumissions de code
+CREATE TABLE Submission (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    exercise_id INT,
+    language_id INT,
+    code TEXT NOT NULL,
+    result TEXT,
+    success BOOLEAN DEFAULT FALSE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (exercise_id) REFERENCES Exercise(id),
+    FOREIGN KEY (language_id) REFERENCES Language(id)
+);
+ 
+-- Table MakeExercise (relation utilisateur ↔ exercice)
+CREATE TABLE MakeExercise (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    exercise_id INT NOT NULL,
+    begins_the DATETIME DEFAULT CURRENT_TIMESTAMP,
+    success BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (exercise_id) REFERENCES Exercise(id)
+);
