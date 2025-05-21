@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controller.IncludeChoiceController"
+            stylesheets="@/styles/include.css"
+            prefWidth="800" prefHeight="600" styleClass="root">
+
+    <Button fx:id="backButton"
+            text="← Back"
+            onAction="#handleBack"
+            styleClass="back-button"
+            layoutX="20" layoutY="20"/>
+
+
+    <VBox alignment="TOP_CENTER" spacing="20" AnchorPane.topAnchor="50" AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50">
+
+        <Label text="Choose your language and exercise" styleClass="title-label"/>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Language :" styleClass="field-label"/>
+            <ComboBox fx:id="languageComboBox" promptText="Select..." styleClass="custom-combobox"/>
+        </HBox>
+
+        <TableView fx:id="exerciseTable" prefHeight="300" styleClass="custom-table">
+            <columns>
+                <TableColumn fx:id="titleColumn" text="Title" prefWidth="200"/>
+                <TableColumn fx:id="typeColumn" text="Type" prefWidth="100"/>
+                <TableColumn fx:id="difficultyColumn" text="Difficulty" prefWidth="100"/>
+            </columns>
+        </TableView>
+
+        <Button text="GO" onAction="#handleGo" styleClass="go-button"/>
+
+    </VBox>
+</AnchorPane>

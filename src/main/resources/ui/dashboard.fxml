@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controller.DashboardController"
+            prefWidth="800" prefHeight="600"
+            style="-fx-background-color: #1a1a2e;">
+
+
+
+    <center>
+        <VBox alignment="CENTER" spacing="30">
+            <Label text="Which type of exercises would you like to solve?"
+                   style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+            <HBox alignment="CENTER" spacing="40">
+                <Button
+                        fx:id="includeButton"
+                        text="INCLUDE"
+                        onAction="#handleIncludeClick"
+                        style="-fx-background-color: #00c9ff; -fx-text-fill: black; -fx-font-weight: bold;"
+                        prefWidth="150" prefHeight="50"/>
+
+                <Button text="STDIN/STDOUT"
+                        onAction="#handleStdinClick"
+                        style="-fx-background-color: #92fe9d; -fx-text-fill: black; -fx-font-weight: bold;"
+                        prefWidth="150" prefHeight="50"/>
+            </HBox>
+        </VBox>
+    </center>
+
+
+
+
+
+</BorderPane>

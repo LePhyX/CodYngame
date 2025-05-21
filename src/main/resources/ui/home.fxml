@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controller.HomeController"
+            prefWidth="800" prefHeight="600"
+            style="-fx-background-color: #1a1a2e; -fx-padding: 30;">
+
+    <top>
+        <HBox spacing="10" alignment="CENTER_RIGHT" BorderPane.alignment="TOP_RIGHT">
+            <Label fx:id="helloLabel"
+                   style="-fx-text-fill: #00ffff; -fx-font-size: 20px; -fx-font-weight: bold;" />
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="30" alignment="CENTER">
+            <Label text="Bienvenue sur CodYngame !"
+                   style="-fx-font-size: 28px; -fx-text-fill: white; -fx-font-weight: bold;" />
+
+            <Button fx:id="exercisesButton"
+                    text="Exercices"
+                    onAction="#handleExercisesClick"
+                    style="-fx-background-color: linear-gradient(to right, #00c9ff, #92fe9d);
+                           -fx-font-weight: bold; -fx-text-fill: black;"
+                    prefWidth="200" prefHeight="50" />
+        </VBox>
+    </center>
+
+</BorderPane>

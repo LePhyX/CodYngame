@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controller.IncludeExerciseController"
+            stylesheets="@/styles/include.css"
+            prefWidth="800" prefHeight="600">
+
+    <top>
+        <HBox alignment="TOP_LEFT">
+            <Button fx:id="backButton" text="← Back" onAction="#handleBack"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="15" alignment="TOP_CENTER">
+            <!-- ✅ Padding ici -->
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+
+            <Label fx:id="exerciseTitle"
+                   text="Titre de l'exercice"
+                   styleClass="title-label"/>
+
+            <!-- Zone en deux colonnes -->
+            <HBox spacing="20">
+
+                <!-- 📘 Description -->
+                <VBox spacing="5">
+                    <Label text="Description de l'exercice"/>
+                    <TextArea fx:id="exerciseDescription"
+                              wrapText="true"
+                              editable="false"
+                              prefWidth="350"
+                              prefHeight="200"/>
+                </VBox>
+
+                <!-- 🧱 Code de base -->
+                <VBox spacing="5">
+                    <Label text="Code de base (non modifiable)"/>
+                    <TextArea fx:id="baseCodeArea"
+                              wrapText="false"
+                              editable="false"
+                              prefWidth="400"
+                              prefHeight="200"
+                              style="-fx-control-inner-background: #f0f0f0;"/>
+                </VBox>
+
+            </HBox>
+
+            <!-- ✍️ Zone d'édition -->
+            <Label text="Votre code à compléter"/>
+            <TextArea fx:id="codeEditor"
+                      promptText="Écrivez ici le corps de la fonction..."
+                      prefHeight="150"
+                      prefWidth="750"/>
+
+            <!-- Résultat -->
+            <Label text="Résultat de l'exécution"/>
+            <TextArea fx:id="outputArea"
+                      promptText="Résultat..."
+                      editable="false"
+                      prefHeight="100"
+                      prefWidth="750"/>
+
+            <!-- Bouton RUN -->
+            <Button text="RUN TEST" onAction="#handleRun"/>
+        </VBox>
+    </center>
+
+</BorderPane>

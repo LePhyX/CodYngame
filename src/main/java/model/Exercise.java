@@ -1,89 +1,88 @@
 package model;
 
-import java.util.List;
+import javafx.beans.property.*;
 
-/**
- * Represents a programming exercise including its metadata, language,
- * description, reference solution, and associated test cases.
- */
 public class Exercise {
+    private IntegerProperty id = new SimpleIntegerProperty();
+    private StringProperty title = new SimpleStringProperty();
+    private StringProperty description = new SimpleStringProperty();
+    private StringProperty type = new SimpleStringProperty();
+    private ObjectProperty<byte[]> exercisePdf = new SimpleObjectProperty<>();
+    private ObjectProperty<byte[]> solutionPdf = new SimpleObjectProperty<>();
+    private StringProperty solution = new SimpleStringProperty();
+    private IntegerProperty difficulty = new SimpleIntegerProperty();
 
-    /** Unique identifier of the exercise */
-    private int id;
+    // ✅ AJOUTS POUR LE MODE INCLUDE
+    private StringProperty baseCode = new SimpleStringProperty();
+    private IntegerProperty lineCode = new SimpleIntegerProperty();
 
-    /** Title or name of the exercise */
-    private String title;
-
-    /** Programming language used in the exercise (e.g., "java", "c", "python") */
-    private String language;
-
-    /** Textual description of the exercise given to the user */
-    private String description;
-
-    /** Optional reference solution (may be used for verification or hints) */
-    private String solutionCode;
-
-    /** List of test cases used to evaluate the user's code */
-    private List<Test> testCases;
-
-    // Constructors
     public Exercise() {}
 
-    public Exercise(int id, String title, String language, String description, String solutionCode, List<Test> testCases) {
-        this.id = id;
-        this.title = title;
-        this.language = language;
-        this.description = description;
-        this.solutionCode = solutionCode;
-        this.testCases = testCases;
+    public Exercise(String title, String description, String type, byte[] exercisePdf,
+                    byte[] solutionPdf, String solution, int difficulty) {
+        this.title.set(title);
+        this.description.set(description);
+        this.type.set(type);
+        this.exercisePdf.set(exercisePdf);
+        this.solutionPdf.set(solutionPdf);
+        this.solution.set(solution);
+        this.difficulty.set(difficulty);
     }
 
-    // Getters and setters
-    public int getId() {
-        return id;
+    public Exercise(int id, String title, String type, int difficulty) {
+        this.id.set(id);
+        this.title.set(title);
+        this.type.set(type);
+        this.difficulty.set(difficulty);
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    // --- ID ---
+    public int getId() { return id.get(); }
+    public void setId(int id) { this.id.set(id); }
+    public IntegerProperty idProperty() { return id; }
 
-    public String getTitle() {
-        return title;
-    }
+    // --- Title ---
+    public String getTitle() { return title.get(); }
+    public void setTitle(String title) { this.title.set(title); }
+    public StringProperty titleProperty() { return title; }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    // --- Description ---
+    public String getDescription() { return description.get(); }
+    public void setDescription(String description) { this.description.set(description); }
+    public StringProperty descriptionProperty() { return description; }
 
-    public String getLanguage() {
-        return language;
-    }
+    // --- Type ---
+    public String getType() { return type.get(); }
+    public void setType(String type) { this.type.set(type); }
+    public StringProperty typeProperty() { return type; }
 
-    public void setLanguage(String language) {
-        this.language = language;
-    }
+    // --- Exercise PDF ---
+    public byte[] getExercisePdf() { return exercisePdf.get(); }
+    public void setExercisePdf(byte[] exercisePdf) { this.exercisePdf.set(exercisePdf); }
+    public ObjectProperty<byte[]> exercisePdfProperty() { return exercisePdf; }
 
-    public String getDescription() {
-        return description;
-    }
+    // --- Solution PDF ---
+    public byte[] getSolutionPdf() { return solutionPdf.get(); }
+    public void setSolutionPdf(byte[] solutionPdf) { this.solutionPdf.set(solutionPdf); }
+    public ObjectProperty<byte[]> solutionPdfProperty() { return solutionPdf; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    // --- Solution ---
+    public String getSolution() { return solution.get(); }
+    public void setSolution(String solution) { this.solution.set(solution); }
+    public StringProperty solutionProperty() { return solution; }
 
-    public String getSolutionCode() {
-        return solutionCode;
-    }
+    // --- Difficulty ---
+    public int getDifficulty() { return difficulty.get(); }
+    public void setDifficulty(int difficulty) { this.difficulty.set(difficulty); }
+    public IntegerProperty difficultyProperty() { return difficulty; }
 
-    public void setSolutionCode(String solutionCode) {
-        this.solutionCode = solutionCode;
-    }
+    // ✅ --- BaseCode ---
+    public String getBaseCode() { return baseCode.get(); }
+    public void setBaseCode(String baseCode) { this.baseCode.set(baseCode); }
+    public StringProperty baseCodeProperty() { return baseCode; }
 
-    public List<Test> getTestCases() {
-        return testCases;
-    }
-
-    public void setTestCases(List<Test> testCases) {
-        this.testCases = testCases;
-    }
+    // ✅ --- LineCode ---
+    public int getLineCode() { return lineCode.get(); }
+    public void setLineCode(int lineCode) { this.lineCode.set(lineCode); }
+    public IntegerProperty lineCodeProperty() { return lineCode; }
 }

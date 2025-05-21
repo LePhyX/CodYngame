@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controller.LoginController"
+            style="-fx-background-color: linear-gradient(to bottom, #1a1a2e, #16213e);">
+
+    <VBox alignment="CENTER" spacing="15"
+          AnchorPane.leftAnchor="0"
+          AnchorPane.rightAnchor="0"
+          AnchorPane.topAnchor="0"
+          AnchorPane.bottomAnchor="0"
+          style="-fx-padding: 30; -fx-background-color: rgba(255,255,255,0.05); -fx-background-radius: 20;">
+
+        <Label text="CodYngame"
+               style="-fx-font-size: 28px; -fx-text-fill: #00ffff; -fx-font-weight: bold;" />
+
+        <Label fx:id="modeLabel"
+               style="-fx-text-fill: white; -fx-font-size: 18px;" />
+
+        <TextField fx:id="usernameField"
+                   promptText="Nom d'utilisateur"
+                   styleClass="input" maxWidth="300"/>
+
+        <TextField fx:id="emailField"
+                   promptText="Email"
+                   styleClass="input" visible="false" managed="false" maxWidth="300"/>
+
+        <PasswordField fx:id="passwordField"
+                       promptText="Mot de passe"
+                       styleClass="input" maxWidth="300"/>
+
+        <Label fx:id="errorLabel"
+               style="-fx-text-fill: #ff5050;"/>
+
+        <Button fx:id="actionButton"
+                text="Connexion"
+                onAction="#handleAction"
+                styleClass="main-button" maxWidth="200"/>
+
+        <Button fx:id="switchModeButton"
+                text="Pas encore de compte ? S'inscrire"
+                onAction="#toggleMode"
+                style="-fx-background-color: transparent; -fx-text-fill: #00ffff; -fx-underline: true;" />
+
+    </VBox>
+</AnchorPane>
