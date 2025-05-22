@@ -10,7 +10,6 @@ import model.Exercise;
 import model.Language;
 import fusion.FusionneurCode3;
 
-
 public class IncludeExerciseController {
 
     @FXML
@@ -79,24 +78,42 @@ public class IncludeExerciseController {
     private String executeUserCode(String code, Language lang, Exercise exercise) {
         try {
             FusionneurCode3 fusionneur = new FusionneurCode3();
-            String tests = genererTestsAutomatiques(lang, exercise);
-            String codeAvecTests = code + "\n" + tests;
+            String langName = lang.getName().toLowerCase();
 
-            FusionneurCode3.ResultatExecution resultat = fusionneur.executerCode(
-                    lang.getName(),
-                    codeAvecTests,
-                    exercise.getBaseCode(),
-                    exercise.getLineCode()
-            );
+            FusionneurCode3.ResultatExecution resultat;
+            String codeToExecute;
+
+            // Traiter Python, C et Java de la même manière (sans fusion)
+            if (langName.equals("python") || langName.equals("c") || langName.equals("java")) {
+                String tests = genererTestsAutomatiques(lang, exercise);
+                codeToExecute = code + "\n" + tests;
+
+                resultat = fusionneur.executerCode(
+                        lang.getName(),
+                        codeToExecute,
+                        "",
+                        -1
+                );
+            } else {
+                String tests = genererTestsAutomatiques(lang, exercise);
+                codeToExecute = code + "\n" + tests;
+
+                resultat = fusionneur.executerCode(
+                        lang.getName(),
+                        code,
+                        exercise.getBaseCode(),
+                        exercise.getLineCode()
+                );
+            }
 
             if (resultat.getCodeRetour() == 0) {
                 String sortie = resultat.getSortieStandard().trim();
                 String sortieAttendue = genererSortieAttendue(lang, exercise);
 
                 if (sortieAttendue != null && sortiesEgales(sortieAttendue, sortie)) {
-                    return " Fonction correcte !" ;
+                    return " Fonction correcte !";
                 } else {
-                    return " Fonction incorrecte." ;
+                    return " Fonction incorrecte.";
                 }
             } else {
                 return " Erreur à l'exécution :\n\n" + resultat.getSortieErreur();
@@ -107,18 +124,8 @@ public class IncludeExerciseController {
         }
     }
 
-    private boolean sortiesEgales(String attendue, String obtenue) {
-        String[] lignesA = attendue.trim().split("\\r?\\n");
-        String[] lignesB = obtenue.trim().split("\\r?\\n");
-
-        if (lignesA.length != lignesB.length) return false;
-
-        for (int i = 0; i < lignesA.length; i++) {
-            if (!lignesA[i].trim().equals(lignesB[i].trim())) {
-                return false;
-            }
-        }
-        return true;
+    private boolean sortiesEgales(String s1, String s2) {
+        return s1.trim().equalsIgnoreCase(s2.trim());
     }
 
     private String genererTestsAutomatiques(Language lang, Exercise exercise) {
@@ -139,8 +146,9 @@ public class IncludeExerciseController {
                 if (exoId == 6) return "echo is_even(2) ? 'true' : 'false'; echo \"\\n\"; echo is_even(3) ? 'true' : 'false';";
                 break;
             case "c":
-                if (exoId == 7) return "printf(\"%d\\n\", add(2, 3)); printf(\"%d\\n\", add(0, 0));";
-                if (exoId == 8) return "printf(\"%d\\n\", is_even(2)); printf(\"%d\\n\", is_even(3));";
+                // Pas de tests générés pour C, ils seront ajoutés directement via le main
+                if (exoId == 7) return "";
+                if (exoId == 8) return "";
                 break;
             case "javascript":
                 if (exoId == 9) return "console.log(add(2, 3)); console.log(add(0, 0));";
