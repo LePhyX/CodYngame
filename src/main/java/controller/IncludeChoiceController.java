@@ -12,10 +12,10 @@ import model.Exercise;
 import model.ExerciseDAO;
 import model.Language;
 import model.LanguageDAO;
+import utils.Session;
+
 import java.net.URL;
 import java.util.List;
-import fusion.FusionneurCode3;
-import model.User;
 
 public class IncludeChoiceController {
 
@@ -28,15 +28,9 @@ public class IncludeChoiceController {
     private final LanguageDAO languageDAO = new LanguageDAO();
     private final ExerciseDAO exerciseDAO = new ExerciseDAO();
 
-    @FXML
-    private Button backButton;
+    @FXML private Button backButton;
 
-    private User currentUser; // ✅ Champ ajouté
-
-    // ✅ Méthode ajoutée pour recevoir l'utilisateur
-    public void initData(User user) {
-        this.currentUser = user;
-    }
+    // ❌ Supprimé : private User currentUser;
 
     @FXML
     private void handleBack() {
@@ -97,7 +91,7 @@ public class IncludeChoiceController {
             Parent root = loader.load();
 
             IncludeExerciseController controller = loader.getController();
-            controller.initData(selectedLang, selectedExercise, currentUser); // ✅
+            controller.initData(selectedLang, selectedExercise); // ✅ utilisateur non passé manuellement
 
             Stage stage = (Stage) languageComboBox.getScene().getWindow();
             stage.setScene(new Scene(root));

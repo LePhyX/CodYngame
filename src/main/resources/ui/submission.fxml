@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controller.SubmissionController"
+            prefWidth="800" prefHeight="600"
+            style="-fx-background-color: #181829;"
+            stylesheets="@/styles/style.css">
+
+    <top>
+        <HBox alignment="TOP_LEFT">
+            <Button fx:id="backButton" text="← Back" onAction="#handleBack"/>
+        </HBox>
+    </top>
+
+    <center>
+        <TableView fx:id="table" prefWidth="700" prefHeight="500">
+            <columns>
+                <TableColumn fx:id="exerciseCol"   text="Exercise"        prefWidth="300"/>
+                <TableColumn fx:id="totalCol"      text="Total Subs"      prefWidth="100"/>
+                <TableColumn fx:id="successCol"    text="Total successes"       prefWidth="150"/>
+                <TableColumn fx:id="firstAttemptCol"    text="First Success " prefWidth="150"/>
+            </columns>
+        </TableView>
+    </center>
+</BorderPane>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controller.ProfilController"
+            prefWidth="900" prefHeight="650"
+            style="-fx-background-color: #181829;"
+            stylesheets="@/styles/style.css">
+
+    <top>
+    <HBox alignment="TOP_LEFT">
+    <Button fx:id="backButton" text="← Back" onAction="#handleBack"/>
+    </HBox>
+    </top>
+
+    <center>
+        <VBox alignment="CENTER" spacing="20">
+            <Label text="My Profil" style="-fx-text-fill: #00e0ff; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+            <!-- 👤 Nom d'utilisateur -->
+            <Label fx:id="usernameLabel" text="User name" style="-fx-text-fill: #63ff95; -fx-font-size: 16px;"/>
+
+            <!-- 📧 Email -->
+            <Label fx:id="emailLabel" text="Email" style="-fx-text-fill: #63ff95; -fx-font-size: 16px;"/>
+
+            <!-- 🔐 Mot de passe -->
+            <Label fx:id="passwordLabel" text="Password" style="-fx-text-fill: #63ff95; -fx-font-size: 16px;"/>
+
+
+            <!-- 🧮 Score -->
+            <Label fx:id="scoreLabel" text="Score" style="-fx-text-fill: #63ff95; -fx-font-size: 16px;"/>
+
+
+            <!-- 🕒 Date d'inscription -->
+            <Label fx:id="createdAtLabel" text="Registered since" style="-fx-text-fill: #63ff95; -fx-font-size: 16px;"/>
+
+            <!-- 📊 Soumissions -->
+            <Button fx:id="submissionsButton" text="Voir mes soumissions" onAction="#handleSubmissions"
+                    styleClass="stat-button"/>
+
+
+
+
+            <!-- ✏️ Bouton modifier -->
+            <Button fx:id="editButton" text="Modify the profile" onAction="#handleEdit"
+                    style="-fx-background-color: linear-gradient(to right, #007cf0, #00dfd8);
+               -fx-text-fill: white; -fx-font-weight: bold;
+               -fx-background-radius: 10px; -fx-padding: 10 20;">
+                <VBox.margin>
+                    <Insets top="60"/>
+                </VBox.margin>
+            </Button>
+
+
+
+
+
+        </VBox>
+    </center>
+
+</BorderPane>

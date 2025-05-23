@@ -7,45 +7,47 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import model.User;
+import utils.Session;
+
+import java.io.IOException;
 
 public class HomeController {
 
-    @FXML private Label helloLabel;
-    @FXML private Button exercisesButton; //  Nécessaire car référencé dans le FXML
-
-    private String username = "User"; // Valeur par défaut
-
-    public void setUsername(String username) {
-        this.username = username;
-        if (helloLabel != null) {
-            helloLabel.setText("Hello " + username + " !");
-        }
-    }
+    @FXML private Button profileButton;
+    @FXML private Button exercisesButton;
+    @FXML private Label welcomeLabel;
 
     @FXML
     public void initialize() {
-        helloLabel.setText("Hello " + username + " !");
+        // Affiche directement l'utilisateur de la session
+        User u = Session.getInstance().getCurrentUser();
+        welcomeLabel.setText("Bienvenue, " + u.getUsername() + " !");
     }
-
-
 
     @FXML
     private void handleExercisesClick() {
         try {
-            System.out.println(">> clique détecté");
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/dashboard.fxml"));
-            Parent root = loader.load();
-
+            Parent root = FXMLLoader.load(
+                    getClass().getResource("/ui/dashboard.fxml"));
             Stage stage = (Stage) exercisesButton.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("Dashboard");
-            stage.show();
-
-        } catch (Exception e) {
-            System.out.println("❌ Erreur chargement FXML : ");
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-
+    @FXML
+    private void handleProfile() {
+        try {
+            Parent root = FXMLLoader.load(
+                    getClass().getResource("/ui/profil.fxml"));
+            Stage stage = (Stage) profileButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Mon Profil");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

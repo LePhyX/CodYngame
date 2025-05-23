@@ -6,6 +6,7 @@ public class User {
     private String email;
     private String passwordHash;
     private int score;
+    private java.sql.Timestamp createdAt;
 
     public User() {}
 
@@ -25,6 +26,10 @@ public class User {
         this.passwordHash = passwordHash;
         this.score = score;
     }
+
+    public java.sql.Timestamp getCreatedAt(){return createdAt;}
+
+    public void setCreatedAt(java.sql.Timestamp createdAt) {    this.createdAt = createdAt;}
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

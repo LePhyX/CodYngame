@@ -11,22 +11,33 @@
 
     <top>
         <HBox spacing="10" alignment="CENTER_RIGHT" BorderPane.alignment="TOP_RIGHT">
-            <Label fx:id="helloLabel"
+            <Label fx:id="welcomeLabel"
                    style="-fx-text-fill: #00ffff; -fx-font-size: 20px; -fx-font-weight: bold;" />
         </HBox>
     </top>
+
+
 
     <center>
         <VBox spacing="30" alignment="CENTER">
             <Label text="Bienvenue sur CodYngame !"
                    style="-fx-font-size: 28px; -fx-text-fill: white; -fx-font-weight: bold;" />
+            <HBox alignment="CENTER" spacing="50">
+                <Button fx:id="exercisesButton"
+                        text="Exercices"
+                        onAction="#handleExercisesClick"
+                        style="-fx-background-color: linear-gradient(to right, #00c9ff, #92fe9d);
+                               -fx-font-weight: bold; -fx-text-fill: black;"
+                        prefWidth="200" prefHeight="50" />
 
-            <Button fx:id="exercisesButton"
-                    text="Exercices"
-                    onAction="#handleExercisesClick"
-                    style="-fx-background-color: linear-gradient(to right, #00c9ff, #92fe9d);
-                           -fx-font-weight: bold; -fx-text-fill: black;"
-                    prefWidth="200" prefHeight="50" />
+                <Button fx:id="profileButton"
+                        text="Profil"
+                        onAction="#handleProfile"
+                        style="-fx-background-color: linear-gradient(to right, #00c9ff, #92fe9d);
+                               -fx-font-weight: bold; -fx-text-fill: black;"
+                        prefWidth="200" prefHeight="50"/>
+
+            </HBox>
         </VBox>
     </center>
 

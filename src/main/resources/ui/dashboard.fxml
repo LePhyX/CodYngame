@@ -9,7 +9,11 @@
             prefWidth="800" prefHeight="600"
             style="-fx-background-color: #1a1a2e;">
 
-
+    <top>
+        <HBox alignment="TOP_LEFT">
+            <Button fx:id="backButton" text="← Back" onAction="#handleBack"/>
+        </HBox>
+    </top>
 
     <center>
         <VBox alignment="CENTER" spacing="30">

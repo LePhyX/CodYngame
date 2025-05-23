@@ -8,9 +8,15 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import model.Exercise;
 import model.Language;
-import fusion.FusionneurCode3;
+import utils.FusionneurCode3;
 import model.User;
 import model.UserDAO;
+import utils.Session;
+import model.Submission;
+import model.SubmissionDAO;
+import model.DatabaseConnection;
+
+
 import java.sql.SQLException;
 
 public class IncludeExerciseController {
@@ -32,12 +38,9 @@ public class IncludeExerciseController {
     private Language selectedLanguage;
     private Exercise selectedExercise;
 
-    private User currentUser;
-
-    public void initData(Language language, Exercise exercise, User user) {
+    public void initData(Language language, Exercise exercise) {
         this.selectedLanguage = language;
         this.selectedExercise = exercise;
-        this.currentUser = user;
 
         exerciseTitle.setText(exercise.getTitle());
         exerciseDescription.setText(exercise.getDescription());
@@ -47,14 +50,13 @@ public class IncludeExerciseController {
     }
 
     @FXML
-
     private void handleBack() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/IncludeChoice.fxml"));
             Parent root = loader.load();
 
             IncludeChoiceController controller = loader.getController();
-            controller.initData(currentUser); // ✅ on renvoie l'utilisateur à la page précédente
+
 
             Stage stage = (Stage) backButton.getScene().getWindow();
             stage.setScene(new Scene(root));
@@ -65,7 +67,6 @@ public class IncludeExerciseController {
             e.printStackTrace();
         }
     }
-
 
     @FXML
     private void handleRun() {
@@ -78,6 +79,32 @@ public class IncludeExerciseController {
         try {
             String result = executeUserCode(userCode, selectedLanguage, selectedExercise);
             outputArea.setText(result);
+            User currentUser = Session.getInstance().getCurrentUser();  // ✅ Correct pour Singleton
+
+
+            if (currentUser != null) {
+                Submission submission = new Submission();
+                submission.setUserId(currentUser.getId());
+                submission.setExerciseId(selectedExercise.getId());
+                submission.setLanguageId(selectedLanguage.getId());
+                submission.setCode(userCode);
+                submission.setResult(result);
+
+                // 🔥 Ici on fixe la logique de succès
+                boolean isSuccess = result.trim().equalsIgnoreCase("Fonction correcte !");
+                submission.setSuccess(isSuccess);
+
+                submission.setCreatedAt(java.time.LocalDateTime.now());
+
+                SubmissionDAO dao = new SubmissionDAO(DatabaseConnection.getConnection());
+                System.out.println("==> Submission status:");
+                System.out.println("result = " + result);
+                System.out.println("success = " + isSuccess);
+
+                dao.insertSubmission(submission);
+            }
+
+
         } catch (Exception e) {
             outputArea.setText("Erreur pendant l'exécution :\n" + e.getMessage());
             e.printStackTrace();
@@ -121,12 +148,15 @@ public class IncludeExerciseController {
 
                 if (sortieAttendue != null && sortiesEgales(sortieAttendue, sortie)) {
                     int points = selectedExercise.getDifficulty();
-                    UserDAO userDAO = new UserDAO();
-                    try {
-                        userDAO.updateUserScore(currentUser.getId(), points);
-                        System.out.println("Score updated: +" + points);
-                    } catch (SQLException e) {
-                        System.err.println("Erreur lors de la mise à jour du score: " + e.getMessage());
+                    User currentUser = Session.getInstance().getCurrentUser(); // ✅ récupère user global
+                    if (currentUser != null) {
+                        UserDAO userDAO = new UserDAO();
+                        try {
+                            userDAO.updateUserScore(currentUser.getId(), points);
+                            System.out.println("Score updated: +" + points);
+                        } catch (SQLException e) {
+                            System.err.println("Erreur lors de la mise à jour du score: " + e.getMessage());
+                        }
                     }
 
                     return " Fonction correcte !";
@@ -143,8 +173,6 @@ public class IncludeExerciseController {
         } catch (Exception e) {
             return "Erreur système : " + e.getMessage();
         }
-
-
     }
 
     private boolean sortiesEgales(String s1, String s2) {

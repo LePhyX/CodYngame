@@ -28,39 +28,23 @@ public class UserDAO {
     }
 
     // ✅ Méthode modifiée : renvoie un User complet s'il est trouvé
-    public User checkLogin(String username, String passwordHash) {
-        String sql = "SELECT * FROM User WHERE username = ? AND password_hash = ?";
-
+    public boolean checkLogin(String username, String passwordHash) {
+        String sql = "SELECT COUNT(*) FROM `User` WHERE username = ? AND password_hash = ?";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            // ✅ Ajoute ces logs ici
-            System.out.println("→ CHECK LOGIN: username = " + username + ", hash = " + passwordHash);
+            ps.setString(1, username);
+            ps.setString(2, passwordHash);
 
-            stmt.setString(1, username);
-            stmt.setString(2, passwordHash);
-
-            ResultSet rs = stmt.executeQuery();
-
-            // ✅ Et ici pour voir si un utilisateur est trouvé
-            if (rs.next()) {
-                System.out.println("✔ Utilisateur trouvé en BDD : id = " + rs.getInt("id"));
-                return new User(
-                        rs.getInt("id"),
-                        rs.getString("username"),
-                        rs.getString("email"),
-                        rs.getString("password_hash"),
-                        rs.getInt("score")
-                );
-            } else {
-                System.out.println("❌ Aucun utilisateur trouvé avec ces identifiants.");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) == 1;
+                }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return null;
+        return false;
     }
 
 
@@ -87,23 +71,25 @@ public class UserDAO {
         }
     }
 
-    // ✅ Corrigé pour utiliser password_hash
     public User getUserByUsername(String username) {
         String sql = "SELECT * FROM User WHERE username = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
+
             if (rs.next()) {
-                return new User(
-                        rs.getInt("id"),
-                        rs.getString("username"),
-                        rs.getString("email"),
-                        rs.getString("password_hash"),
-                        rs.getInt("score")
-                );
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setUsername(rs.getString("username"));
+                user.setEmail(rs.getString("email"));
+                user.setPasswordHash(rs.getString("password_hash")); // ✅ indispensable
+                user.setScore(rs.getInt("score"));
+                user.setCreatedAt(rs.getTimestamp("created_at"));
+                return user;
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;

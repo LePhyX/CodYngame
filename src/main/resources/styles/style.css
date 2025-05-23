@@ -13,3 +13,11 @@
     -fx-padding: 10 20;
     -fx-font-size: 14px;
 }
+
+.stat-button {
+    -fx-background-color: linear-gradient(to right, #63ff95, #00e0ff);
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10px;
+    -fx-padding: 6 14;
+}

@@ -3,6 +3,7 @@ package controller;
 import model.User;
 import model.UserDAO;
 import utils.PasswordUtils;
+import utils.Session;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -25,6 +26,7 @@ public class LoginController {
     @FXML private Label modeLabel;
 
     private boolean isSignupMode = false;
+    private final UserDAO dao = new UserDAO();
 
     @FXML
     public void initialize() {
@@ -56,59 +58,57 @@ public class LoginController {
 
     @FXML
     private void handleAction() {
-        String username = usernameField.getText();
+        String username = usernameField.getText().trim();
         String password = passwordField.getText();
         String hash = PasswordUtils.hashPassword(password);
-        UserDAO dao = new UserDAO();
-
-        System.out.println("=== Tentative de connexion ===");
-        System.out.println("Username : " + username);
-        System.out.println("Password : " + password);
-        System.out.println("Hash généré : " + hash);
 
         if (isSignupMode) {
-            String email = emailField.getText();
+            String email = emailField.getText().trim();
 
             if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                errorLabel.setText(" Tous les champs sont requis !");
+                errorLabel.setText("Tous les champs sont requis !");
                 return;
             }
 
             if (dao.userExists(username)) {
-                errorLabel.setText(" Ce nom d'utilisateur est déjà utilisé.");
+                errorLabel.setText("Ce nom d'utilisateur est déjà utilisé.");
                 return;
             }
 
-            User user = new User(username, email, hash);
-            if (dao.addUser(user)) {
-                errorLabel.setText(" Compte créé avec succès !");
-                toggleMode(); // revenir à la connexion
+            User newUser = new User(username, email, hash);
+            if (dao.addUser(newUser)) {
+                errorLabel.setText("Compte créé avec succès !");
+                toggleMode();  // revient en mode connexion
             } else {
-                errorLabel.setText(" Erreur inconnue lors de l'inscription.");
+                errorLabel.setText("Erreur inconnue lors de l'inscription.");
             }
 
         } else {
-            User user = dao.checkLogin(username, hash); // ✅ récupère un User complet
-            if (user != null) {
-                System.out.println("Connexion réussie. Utilisateur ID : " + user.getId());
-                errorLabel.setText(" Connexion réussie !");
-                loadHome(user); // ✅ transmet le User
+            // Mode connexion
+            if (dao.checkLogin(username, hash)) {
+                // 1) Récupérer l'objet User complet
+                User user = dao.getUserByUsername(username);
+                // 2) Le stocker dans la session
+                Session.getInstance().setCurrentUser(user);
+                // 3) Charger la Home
+                loadHome();
             } else {
-                System.out.println("Connexion échouée : mauvais identifiants.");
-                errorLabel.setText(" Nom d'utilisateur ou mot de passe incorrect.");
+                errorLabel.setText("Nom d'utilisateur ou mot de passe incorrect.");
             }
         }
     }
 
-    private void loadHome(User user) {
+    /**
+     * Redirection vers la page d'accueil après connexion
+     */
+    private void loadHome() {
         try {
-            // ✅ Charger la bonne page
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/Dashboard.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/home.fxml"));
             Parent root = loader.load();
 
-            // ✅ Récupérer le bon contrôleur
-            DashboardController controller = loader.getController();
-            controller.initData(user); // envoie l'utilisateur connecté
+            // Plus besoin de passer manuellement le username :
+            // HomeController controller = loader.getController();
+            // controller.setUsername(username);
 
             Stage stage = (Stage) actionButton.getScene().getWindow();
             stage.setScene(new Scene(root));
@@ -120,5 +120,4 @@ public class LoginController {
             errorLabel.setText("Erreur lors du chargement de l'accueil.");
         }
     }
-
 }
