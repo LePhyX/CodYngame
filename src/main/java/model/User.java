@@ -1,6 +1,5 @@
 package model;
 
-
 public class User {
     private int id;
     private String username;
@@ -10,11 +9,21 @@ public class User {
 
     public User() {}
 
+    // Constructeur utilisé lors de l'inscription
     public User(String username, String email, String passwordHash) {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
         this.score = 0;
+    }
+
+    // ✅ Constructeur utilisé pour charger un User depuis la BDD
+    public User(int id, String username, String email, String passwordHash, int score) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.score = score;
     }
 
     public int getId() { return id; }

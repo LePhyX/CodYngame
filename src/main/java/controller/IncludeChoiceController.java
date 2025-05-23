@@ -15,7 +15,7 @@ import model.LanguageDAO;
 import java.net.URL;
 import java.util.List;
 import fusion.FusionneurCode3;
-
+import model.User;
 
 public class IncludeChoiceController {
 
@@ -30,6 +30,13 @@ public class IncludeChoiceController {
 
     @FXML
     private Button backButton;
+
+    private User currentUser; // ✅ Champ ajouté
+
+    // ✅ Méthode ajoutée pour recevoir l'utilisateur
+    public void initData(User user) {
+        this.currentUser = user;
+    }
 
     @FXML
     private void handleBack() {
@@ -49,16 +56,13 @@ public class IncludeChoiceController {
 
     @FXML
     public void initialize() {
-        // Remplir la ComboBox avec tous les langages
         List<Language> languages = languageDAO.getAllLanguages();
         languageComboBox.setItems(FXCollections.observableArrayList(languages));
 
-        //  Configurer les colonnes du tableau avec les Property JavaFX
         titleColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
         typeColumn.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
         difficultyColumn.setCellValueFactory(cellData -> cellData.getValue().difficultyProperty().asObject());
 
-        // Réagir quand un langage est sélectionné
         languageComboBox.setOnAction(event -> {
             Language selectedLang = languageComboBox.getValue();
             if (selectedLang != null) {
@@ -67,7 +71,6 @@ public class IncludeChoiceController {
             }
         });
     }
-
 
     @FXML
     private void handleGo() {
@@ -94,7 +97,7 @@ public class IncludeChoiceController {
             Parent root = loader.load();
 
             IncludeExerciseController controller = loader.getController();
-            controller.initData(selectedLang, selectedExercise);
+            controller.initData(selectedLang, selectedExercise, currentUser); // ✅
 
             Stage stage = (Stage) languageComboBox.getScene().getWindow();
             stage.setScene(new Scene(root));
@@ -104,8 +107,6 @@ public class IncludeChoiceController {
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement de IncludeExercise.fxml : " + e.getMessage());
             e.printStackTrace();
-
         }
     }
 }
-

@@ -9,6 +9,9 @@ import javafx.stage.Stage;
 import model.Exercise;
 import model.Language;
 import fusion.FusionneurCode3;
+import model.User;
+import model.UserDAO;
+import java.sql.SQLException;
 
 public class IncludeExerciseController {
 
@@ -29,34 +32,40 @@ public class IncludeExerciseController {
     private Language selectedLanguage;
     private Exercise selectedExercise;
 
-    public void initData(Language language, Exercise exercise) {
-        System.out.println("3 EXO = " + exercise);
-        System.out.println(" DESC = " + exercise.getDescription());
+    private User currentUser;
 
+    public void initData(Language language, Exercise exercise, User user) {
         this.selectedLanguage = language;
         this.selectedExercise = exercise;
+        this.currentUser = user;
 
         exerciseTitle.setText(exercise.getTitle());
         exerciseDescription.setText(exercise.getDescription());
         baseCodeArea.setText(exercise.getBaseCode());
-        codeEditor.clear(); // éditeur vide pour saisir le code utilisateur
-
+        codeEditor.clear();
         outputArea.setText("");
     }
 
     @FXML
+
     private void handleBack() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/IncludeChoice.fxml"));
             Parent root = loader.load();
+
+            IncludeChoiceController controller = loader.getController();
+            controller.initData(currentUser); // ✅ on renvoie l'utilisateur à la page précédente
+
             Stage stage = (Stage) backButton.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("Faites un choix");
             stage.show();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     @FXML
     private void handleRun() {
@@ -83,7 +92,6 @@ public class IncludeExerciseController {
             FusionneurCode3.ResultatExecution resultat;
             String codeToExecute;
 
-            // Traiter Python, C et Java de la même manière (sans fusion)
             if (langName.equals("python") || langName.equals("c") || langName.equals("java")) {
                 String tests = genererTestsAutomatiques(lang, exercise);
                 codeToExecute = code + "\n" + tests;
@@ -109,19 +117,34 @@ public class IncludeExerciseController {
             if (resultat.getCodeRetour() == 0) {
                 String sortie = resultat.getSortieStandard().trim();
                 String sortieAttendue = genererSortieAttendue(lang, exercise);
+                String testsUtilises = genererTestsAutomatiques(lang, exercise);
 
                 if (sortieAttendue != null && sortiesEgales(sortieAttendue, sortie)) {
+                    int points = selectedExercise.getDifficulty();
+                    UserDAO userDAO = new UserDAO();
+                    try {
+                        userDAO.updateUserScore(currentUser.getId(), points);
+                        System.out.println("Score updated: +" + points);
+                    } catch (SQLException e) {
+                        System.err.println("Erreur lors de la mise à jour du score: " + e.getMessage());
+                    }
+
                     return " Fonction correcte !";
                 } else {
-                    return " Fonction incorrecte.";
+                    return "Fonction incorrecte.\n\n"
+                            + "Cas de test utilisés :\n" + testsUtilises + "\n\n"
+                            + "Sortie attendue :\n" + sortieAttendue + "\n\n"
+                            + "Sortie obtenue :\n" + sortie;
                 }
             } else {
-                return " Erreur à l'exécution :\n\n" + resultat.getSortieErreur();
+                return "Erreur à l'exécution :\n\n" + resultat.getSortieErreur();
             }
 
         } catch (Exception e) {
-            return " Erreur système : " + e.getMessage();
+            return "Erreur système : " + e.getMessage();
         }
+
+
     }
 
     private boolean sortiesEgales(String s1, String s2) {
@@ -134,24 +157,23 @@ public class IncludeExerciseController {
 
         switch (langName) {
             case "python":
-                if (exoId == 1) return "print(add(2, 3))\nprint(add(0, 0))";
+                if (exoId == 1) return "print(add(2, 3))\nprint(add(1, 2))";
                 if (exoId == 2) return "print(is_even(2))\nprint(is_even(3))";
                 break;
             case "java":
-                if (exoId == 3) return "System.out.println(add(2, 3));\nSystem.out.println(add(0, 0));";
+                if (exoId == 3) return "System.out.println(add(2, 3));\nSystem.out.println(add(1, 2));";
                 if (exoId == 4) return "System.out.println(isEven(2));\nSystem.out.println(isEven(3));";
                 break;
             case "php":
-                if (exoId == 5) return "echo add(2, 3) . \"\\n\"; echo add(0, 0) . \"\\n\";";
+                if (exoId == 5) return "echo add(2, 3) . \"\\n\"; echo add(1, 2) . \"\\n\";";
                 if (exoId == 6) return "echo is_even(2) ? 'true' : 'false'; echo \"\\n\"; echo is_even(3) ? 'true' : 'false';";
                 break;
             case "c":
-                // Pas de tests générés pour C, ils seront ajoutés directement via le main
                 if (exoId == 7) return "";
                 if (exoId == 8) return "";
                 break;
             case "javascript":
-                if (exoId == 9) return "console.log(add(2, 3)); console.log(add(0, 0));";
+                if (exoId == 9) return "console.log(add(2, 3)); console.log(add(1, 2));";
                 if (exoId == 10) return "console.log(isEven(2)); console.log(isEven(3));";
                 break;
         }
@@ -168,7 +190,7 @@ public class IncludeExerciseController {
             case "php":
             case "c":
             case "javascript":
-                if (exoId == 1 || exoId == 3 || exoId == 5 || exoId == 7 || exoId == 9) return "5\n0";
+                if (exoId == 1 || exoId == 3 || exoId == 5 || exoId == 7 || exoId == 9) return "5\n3";
                 if (exoId == 2 || exoId == 4 || exoId == 6 || exoId == 8 || exoId == 10) {
                     if (langName.equals("php") || langName.equals("c")) return "1\n0";
                     if (langName.equals("python") || langName.equals("javascript")) return "True\nFalse";
@@ -179,8 +201,3 @@ public class IncludeExerciseController {
         return null;
     }
 }
-
-
-
-
-

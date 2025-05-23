@@ -25,9 +25,11 @@ public class FusionneurCode3 {
     }
 
     public ResultatExecution executerCode(String langage, String codeUtilisateur, String codeBase, int ligneInsertion) throws IOException, InterruptedException {
-        String codeFinal;
 
-        // === PYTHON ===
+            String codeFinal = ""; // 🟢 ajoute ça ici
+
+
+            // === PYTHON ===
         if (langage.equalsIgnoreCase("python")) {
             codeFinal = codeUtilisateur;
             String nomFonction = extraireNomFonctionPython(codeUtilisateur);
@@ -39,7 +41,7 @@ public class FusionneurCode3 {
             StringBuilder testsCode = new StringBuilder("\n# Tests automatiques\n");
             if (nbArgs == 2) {
                 testsCode.append("print(").append(nomFonction).append("(2, 3))\n");
-                testsCode.append("print(").append(nomFonction).append("(0, 0))\n");
+                testsCode.append("print(").append(nomFonction).append("(1, 2))\n");
             } else if (nbArgs == 1) {
                 testsCode.append("print(").append(nomFonction).append("(2))\n");
                 testsCode.append("print(").append(nomFonction).append("(3))\n");
@@ -60,16 +62,28 @@ public class FusionneurCode3 {
             boolean hasMainFunction = codeUtilisateur.contains("main(");
 
             if (!hasMainFunction) {
+                int nbArgs = compterArguments(codeUtilisateur, nomFonction);
                 StringBuilder mainCode = new StringBuilder();
                 if (!hasStdioInclude) mainCode.append("#include <stdio.h>\n");
 
                 mainCode.append("int main() {\n");
-                mainCode.append("    printf(\"%d\\n\", ").append(nomFonction).append("(2, 3));\n");
-                mainCode.append("    printf(\"%d\\n\", ").append(nomFonction).append("(0, 0));\n");
-                mainCode.append("    return 0;\n}\n");
+
+                if (nbArgs == 2) {
+                    mainCode.append("    printf(\"%d\\n\", ").append(nomFonction).append("(2, 3));\n");
+                    mainCode.append("    printf(\"%d\\n\", ").append(nomFonction).append("(1, 2));\n");
+                } else if (nbArgs == 1) {
+                    mainCode.append("    printf(\"%d\\n\", ").append(nomFonction).append("(2));\n");
+                    mainCode.append("    printf(\"%d\\n\", ").append(nomFonction).append("(3));\n");
+                } else {
+                    mainCode.append("    printf(\"%d\\n\", ").append(nomFonction).append("());\n");
+                }
+
+                mainCode.append("    return 0;\n");
+                mainCode.append("}\n");
 
                 codeFinal += "\n" + mainCode;
             }
+
         }
 
         // === JAVA (sans base)
@@ -78,6 +92,8 @@ public class FusionneurCode3 {
             if (methodName == null) {
                 throw new IllegalArgumentException("Impossible de trouver une méthode Java dans le code utilisateur.");
             }
+
+            int nbArgs = compterArguments(codeUtilisateur, methodName); // Ajoute cette méthode si absente
 
             StringBuilder javaCode = new StringBuilder();
             javaCode.append("public class Main {\n\n");
@@ -91,18 +107,21 @@ public class FusionneurCode3 {
             }
 
             javaCode.append("\n    public static void main(String[] args) {\n");
-            if (codeUtilisateur.contains("boolean " + methodName) || codeUtilisateur.contains("Boolean " + methodName)) {
+            if (nbArgs == 2) {
+                javaCode.append("        System.out.println(").append(methodName).append("(2, 3));\n");
+                javaCode.append("        System.out.println(").append(methodName).append("(1, 2));\n");
+            } else if (nbArgs == 1) {
                 javaCode.append("        System.out.println(").append(methodName).append("(2));\n");
                 javaCode.append("        System.out.println(").append(methodName).append("(3));\n");
             } else {
-                javaCode.append("        System.out.println(").append(methodName).append("(2, 3));\n");
-                javaCode.append("        System.out.println(").append(methodName).append("(0, 0));\n");
+                javaCode.append("        System.out.println(").append(methodName).append("());\n");
             }
             javaCode.append("    }\n");
             javaCode.append("}\n");
 
             codeFinal = javaCode.toString();
         }
+
 
         // === JAVASCRIPT ===
         else if (langage.equalsIgnoreCase("javascript") && (codeBase == null || codeBase.trim().isEmpty())) {
@@ -117,7 +136,7 @@ public class FusionneurCode3 {
             jsCode.append(codeUtilisateur);
             if (nbArgs == 2) {
                 jsCode.append("\nconsole.log(").append(methodName).append("(2, 3));\n");
-                jsCode.append("console.log(").append(methodName).append("(0, 0));\n");
+                jsCode.append("console.log(").append(methodName).append("(1, 2));\n");
             } else {
                 jsCode.append("\nconsole.log(").append(methodName).append("(2));\n");
                 jsCode.append("console.log(").append(methodName).append("(3));\n");
@@ -132,26 +151,28 @@ public class FusionneurCode3 {
                 throw new IllegalArgumentException("Impossible de trouver une fonction PHP dans le code utilisateur.");
             }
 
-            int nbArgs = codeUtilisateur.contains(",") ? 2 : 1;
+            int nbArgs = compterArguments(codeUtilisateur, functionName);
 
             StringBuilder phpCode = new StringBuilder("<?php\n");
             phpCode.append(codeUtilisateur);
+            phpCode.append("\n");
+
             if (nbArgs == 2) {
-                phpCode.append("\necho ").append(functionName).append("(2, 3) . \"\\n\";");
-                phpCode.append("echo ").append(functionName).append("(0, 0) . \"\\n\";");
+                phpCode.append("echo ").append(functionName).append("(2, 3) ? \"1\\n\" : \"0\\n\";\n");
+                phpCode.append("echo ").append(functionName).append("(1, 2) ? \"1\\n\" : \"0\\n\";\n");
+            } else if (nbArgs == 1) {
+                phpCode.append("echo ").append(functionName).append("(2) ? \"1\\n\" : \"0\\n\";\n");
+                phpCode.append("echo ").append(functionName).append("(3) ? \"1\\n\" : \"0\\n\";\n");
             } else {
-                phpCode.append("\necho ").append(functionName).append("(2) . \"\\n\";");
-                phpCode.append("echo ").append(functionName).append("(3) . \"\\n\";");
+                phpCode.append("echo ").append(functionName).append("() ? \"1\\n\" : \"0\\n\";\n");
             }
-            phpCode.append("\n?>");
+
+
+            phpCode.append("?>");
+
             codeFinal = phpCode.toString();
-        } else {
-        if (codeBase != null && !codeBase.trim().isEmpty()) {
-            codeFinal = insererALigne(codeBase, codeUtilisateur, ligneInsertion);
-        } else {
-            codeFinal = codeUtilisateur;
         }
-    }
+
 
         // DEBUG
         System.out.println("=== CODE FINAL ===");
@@ -295,6 +316,17 @@ public class FusionneurCode3 {
         Matcher matcher = pattern.matcher(code);
         return matcher.find() ? matcher.group(1) : null;
     }
+    private int compterArguments(String code, String functionName) {
+        Pattern pattern = Pattern.compile(functionName + "\\s*\\(([^)]*)\\)");
+        Matcher matcher = pattern.matcher(code);
+        if (matcher.find()) {
+            String params = matcher.group(1).trim();
+            if (params.isEmpty()) return 0;
+            return params.split(",").length;
+        }
+        return 0;
+    }
+
 
     private void deleteDirectory(File file) throws IOException {
         if (file.isDirectory()) {

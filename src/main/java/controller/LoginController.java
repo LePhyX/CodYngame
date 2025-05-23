@@ -4,8 +4,6 @@ import model.User;
 import model.UserDAO;
 import utils.PasswordUtils;
 
-
-
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,7 +13,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import controller.HomeController;
 
 public class LoginController {
 
@@ -64,6 +61,11 @@ public class LoginController {
         String hash = PasswordUtils.hashPassword(password);
         UserDAO dao = new UserDAO();
 
+        System.out.println("=== Tentative de connexion ===");
+        System.out.println("Username : " + username);
+        System.out.println("Password : " + password);
+        System.out.println("Hash généré : " + hash);
+
         if (isSignupMode) {
             String email = emailField.getText();
 
@@ -80,36 +82,33 @@ public class LoginController {
             User user = new User(username, email, hash);
             if (dao.addUser(user)) {
                 errorLabel.setText(" Compte créé avec succès !");
-
                 toggleMode(); // revenir à la connexion
             } else {
                 errorLabel.setText(" Erreur inconnue lors de l'inscription.");
             }
 
         } else {
-            if (dao.checkLogin(username, hash)) {
+            User user = dao.checkLogin(username, hash); // ✅ récupère un User complet
+            if (user != null) {
+                System.out.println("Connexion réussie. Utilisateur ID : " + user.getId());
                 errorLabel.setText(" Connexion réussie !");
-                loadHome(username); //  redirection vers page d'accueil
+                loadHome(user); // ✅ transmet le User
             } else {
+                System.out.println("Connexion échouée : mauvais identifiants.");
                 errorLabel.setText(" Nom d'utilisateur ou mot de passe incorrect.");
             }
         }
-
-        System.out.println(" Username: " + username);
-        System.out.println(" Hash généré : " + hash);
     }
 
-    /**
-     * Redirection vers la page d'accueil après connexion
-     */
-    private void loadHome(String username) {
+    private void loadHome(User user) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/home.fxml"));
+            // ✅ Charger la bonne page
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/Dashboard.fxml"));
             Parent root = loader.load();
 
-            // Injecte le nom dans le contrôleur
-            HomeController controller = loader.getController();
-            controller.setUsername(username);
+            // ✅ Récupérer le bon contrôleur
+            DashboardController controller = loader.getController();
+            controller.initData(user); // envoie l'utilisateur connecté
 
             Stage stage = (Stage) actionButton.getScene().getWindow();
             stage.setScene(new Scene(root));
@@ -121,4 +120,5 @@ public class LoginController {
             errorLabel.setText("Erreur lors du chargement de l'accueil.");
         }
     }
+
 }
