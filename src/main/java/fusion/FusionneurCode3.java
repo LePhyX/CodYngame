@@ -72,7 +72,7 @@ public class FusionneurCode3 {
             }
         }
 
-        // === JAVA (sans base) corrigé
+        // === JAVA (sans base)
         else if (langage.equalsIgnoreCase("java") && (codeBase == null || codeBase.trim().isEmpty())) {
             String methodName = extraireNomFonctionJava(codeUtilisateur);
             if (methodName == null) {
@@ -82,8 +82,6 @@ public class FusionneurCode3 {
             StringBuilder javaCode = new StringBuilder();
             javaCode.append("public class Main {\n\n");
 
-
-            // Enlever les lignes qui contiennent déjà des appels de test
             String[] lignesCode = codeUtilisateur.split("\\r?\\n");
             for (String ligne : lignesCode) {
                 ligne = ligne.trim();
@@ -91,7 +89,6 @@ public class FusionneurCode3 {
                     javaCode.append("    ").append(ligne).append("\n");
                 }
             }
-
 
             javaCode.append("\n    public static void main(String[] args) {\n");
             if (codeUtilisateur.contains("boolean " + methodName) || codeUtilisateur.contains("Boolean " + methodName)) {
@@ -102,21 +99,59 @@ public class FusionneurCode3 {
                 javaCode.append("        System.out.println(").append(methodName).append("(0, 0));\n");
             }
             javaCode.append("    }\n");
-
             javaCode.append("}\n");
 
             codeFinal = javaCode.toString();
         }
 
-
-        // === AUTRES LANGAGES
-        else {
-            if (codeBase != null && !codeBase.trim().isEmpty()) {
-                codeFinal = insererALigne(codeBase, codeUtilisateur, ligneInsertion);
-            } else {
-                codeFinal = codeUtilisateur;
+        // === JAVASCRIPT ===
+        else if (langage.equalsIgnoreCase("javascript") && (codeBase == null || codeBase.trim().isEmpty())) {
+            String methodName = extraireNomFonctionJavaScript(codeUtilisateur);
+            if (methodName == null) {
+                throw new IllegalArgumentException("Impossible de trouver une fonction JavaScript dans le code utilisateur.");
             }
+
+            int nbArgs = codeUtilisateur.contains(",") ? 2 : 1;
+
+            StringBuilder jsCode = new StringBuilder();
+            jsCode.append(codeUtilisateur);
+            if (nbArgs == 2) {
+                jsCode.append("\nconsole.log(").append(methodName).append("(2, 3));\n");
+                jsCode.append("console.log(").append(methodName).append("(0, 0));\n");
+            } else {
+                jsCode.append("\nconsole.log(").append(methodName).append("(2));\n");
+                jsCode.append("console.log(").append(methodName).append("(3));\n");
+            }
+            codeFinal = jsCode.toString();
         }
+
+        // === PHP ===
+        else if (langage.equalsIgnoreCase("php") && (codeBase == null || codeBase.trim().isEmpty())) {
+            String functionName = extraireNomFonctionPHP(codeUtilisateur);
+            if (functionName == null) {
+                throw new IllegalArgumentException("Impossible de trouver une fonction PHP dans le code utilisateur.");
+            }
+
+            int nbArgs = codeUtilisateur.contains(",") ? 2 : 1;
+
+            StringBuilder phpCode = new StringBuilder("<?php\n");
+            phpCode.append(codeUtilisateur);
+            if (nbArgs == 2) {
+                phpCode.append("\necho ").append(functionName).append("(2, 3) . \"\\n\";");
+                phpCode.append("echo ").append(functionName).append("(0, 0) . \"\\n\";");
+            } else {
+                phpCode.append("\necho ").append(functionName).append("(2) . \"\\n\";");
+                phpCode.append("echo ").append(functionName).append("(3) . \"\\n\";");
+            }
+            phpCode.append("\n?>");
+            codeFinal = phpCode.toString();
+        } else {
+        if (codeBase != null && !codeBase.trim().isEmpty()) {
+            codeFinal = insererALigne(codeBase, codeUtilisateur, ligneInsertion);
+        } else {
+            codeFinal = codeUtilisateur;
+        }
+    }
 
         // DEBUG
         System.out.println("=== CODE FINAL ===");
@@ -157,18 +192,18 @@ public class FusionneurCode3 {
                 commandeExecution = outputExe.getAbsolutePath();
                 break;
 
-            case "php":
-                ext = ".php";
-                tempFile = new File(tempDir.toFile(), "script" + ext);
-                Files.writeString(tempFile.toPath(), codeFinal);
-                commandeExecution = "php " + tempFile.getAbsolutePath();
-                break;
-
             case "javascript":
                 ext = ".js";
                 tempFile = new File(tempDir.toFile(), "script" + ext);
                 Files.writeString(tempFile.toPath(), codeFinal);
                 commandeExecution = "node " + tempFile.getAbsolutePath();
+                break;
+
+            case "php":
+                ext = ".php";
+                tempFile = new File(tempDir.toFile(), "script" + ext);
+                Files.writeString(tempFile.toPath(), codeFinal);
+                commandeExecution = "php " + tempFile.getAbsolutePath();
                 break;
 
             default:
@@ -248,6 +283,17 @@ public class FusionneurCode3 {
         }
         if (ligneInsertion >= lignes.length) resultat.append(codeAInserer).append("\n");
         return resultat.toString();
+    }
+    private String extraireNomFonctionJavaScript(String code) {
+        Pattern pattern = Pattern.compile("function\\s+(\\w+)\\s*\\(");
+        Matcher matcher = pattern.matcher(code);
+        return matcher.find() ? matcher.group(1) : null;
+    }
+
+    private String extraireNomFonctionPHP(String code) {
+        Pattern pattern = Pattern.compile("function\\s+(\\w+)\\s*\\(");
+        Matcher matcher = pattern.matcher(code);
+        return matcher.find() ? matcher.group(1) : null;
     }
 
     private void deleteDirectory(File file) throws IOException {
