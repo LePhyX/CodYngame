@@ -21,6 +21,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Controller for the submission statistics view.
+ * Displays a table of exercises with submission stats for the current user.
+ */
 public class SubmissionController {
 
     @FXML private TableView<SubmissionRow> table;
@@ -29,14 +33,17 @@ public class SubmissionController {
     @FXML private TableColumn<SubmissionRow, Integer> successCol;
     @FXML private TableColumn<SubmissionRow, Integer> firstAttemptCol;
 
+    /**
+     * Initializes the submission table with statistics grouped by exercise for the current user.
+     */
     @FXML
     public void initialize() {
         User currentUser = Session.getInstance().getCurrentUser();
 
-        exerciseCol     .setCellValueFactory(cell -> cell.getValue().exerciseProperty());
-        totalCol        .setCellValueFactory(cell -> cell.getValue().totalProperty().asObject());
-        successCol      .setCellValueFactory(cell -> cell.getValue().successProperty().asObject());
-        firstAttemptCol .setCellValueFactory(cell -> cell.getValue().firstAttemptProperty().asObject());
+        exerciseCol.setCellValueFactory(cell -> cell.getValue().exerciseProperty());
+        totalCol.setCellValueFactory(cell -> cell.getValue().totalProperty().asObject());
+        successCol.setCellValueFactory(cell -> cell.getValue().successProperty().asObject());
+        firstAttemptCol.setCellValueFactory(cell -> cell.getValue().firstAttemptProperty().asObject());
 
         try (Connection conn = DatabaseConnection.getConnection()) {
             SubmissionDAO dao = new SubmissionDAO(conn);
@@ -47,7 +54,7 @@ public class SubmissionController {
                 System.out.println("Stat: " + st.getExerciseTitle() +
                         " | Total: " + st.getTotalCount() +
                         " | Successes: " + st.getSuccessCount() +
-                        " | First attempt with success: " + st.getFirstAttemptId());
+                        " | First success on attempt: " + st.getFirstAttemptId());
 
                 data.add(new SubmissionRow(
                         st.getExerciseTitle(),
@@ -64,6 +71,10 @@ public class SubmissionController {
         }
     }
 
+    /**
+     * Handles the Back button click.
+     * Returns to the profile view.
+     */
     @FXML
     private void handleBack() {
         try {

@@ -11,33 +11,36 @@ import model.Language;
 import utils.FusionneurCode3;
 import model.User;
 import model.UserDAO;
-import utils.Session;
 import model.Submission;
 import model.SubmissionDAO;
 import model.DatabaseConnection;
-
+import utils.Session;
 
 import java.sql.SQLException;
 
+/**
+ * Controller for solving INCLUDE-type exercises.
+ * Loads the base code, collects user input, runs and evaluates the code,
+ * and records the result in the database.
+ */
 public class IncludeExerciseController {
 
-    @FXML
-    private TextArea baseCodeArea;
-
-    @FXML
-    private Button backButton;
-    @FXML
-    private Label exerciseTitle;
-    @FXML
-    private TextArea exerciseDescription;
-    @FXML
-    private TextArea codeEditor;
-    @FXML
-    private TextArea outputArea;
+    @FXML private TextArea baseCodeArea;
+    @FXML private Button backButton;
+    @FXML private Label exerciseTitle;
+    @FXML private TextArea exerciseDescription;
+    @FXML private TextArea codeEditor;
+    @FXML private TextArea outputArea;
 
     private Language selectedLanguage;
     private Exercise selectedExercise;
 
+    /**
+     * Initializes the view with the selected language and exercise.
+     *
+     * @param language The selected programming language.
+     * @param exercise The selected exercise.
+     */
     public void initData(Language language, Exercise exercise) {
         this.selectedLanguage = language;
         this.selectedExercise = exercise;
@@ -49,18 +52,18 @@ public class IncludeExerciseController {
         outputArea.setText("");
     }
 
+    /**
+     * Handles the back button click and returns to the exercise selection screen.
+     */
     @FXML
     private void handleBack() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/IncludeChoice.fxml"));
             Parent root = loader.load();
 
-            IncludeChoiceController controller = loader.getController();
-
-
             Stage stage = (Stage) backButton.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("Faites un choix");
+            stage.setTitle("Choose an exercise");
             stage.show();
 
         } catch (Exception e) {
@@ -68,6 +71,10 @@ public class IncludeExerciseController {
         }
     }
 
+    /**
+     * Handles the Run button click, compiles and executes user code,
+     * evaluates the output, updates the score if successful, and records the submission.
+     */
     @FXML
     private void handleRun() {
         String userCode = codeEditor.getText();
@@ -79,9 +86,8 @@ public class IncludeExerciseController {
         try {
             String result = executeUserCode(userCode, selectedLanguage, selectedExercise);
             outputArea.setText(result);
-            User currentUser = Session.getInstance().getCurrentUser();  // ✅ Correct pour Singleton
 
-
+            User currentUser = Session.getInstance().getCurrentUser();
             if (currentUser != null) {
                 Submission submission = new Submission();
                 submission.setUserId(currentUser.getId());
@@ -89,97 +95,84 @@ public class IncludeExerciseController {
                 submission.setLanguageId(selectedLanguage.getId());
                 submission.setCode(userCode);
                 submission.setResult(result);
-
-                // 🔥 Ici on fixe la logique de succès
-                boolean isSuccess = result.trim().equalsIgnoreCase("Fonction correcte !");
-                submission.setSuccess(isSuccess);
-
+                submission.setSuccess(result.trim().equalsIgnoreCase("Correct function!"));
                 submission.setCreatedAt(java.time.LocalDateTime.now());
 
                 SubmissionDAO dao = new SubmissionDAO(DatabaseConnection.getConnection());
-                System.out.println("==> Submission status:");
-                System.out.println("result = " + result);
-                System.out.println("success = " + isSuccess);
-
                 dao.insertSubmission(submission);
             }
 
-
         } catch (Exception e) {
-            outputArea.setText("Erreur pendant l'exécution :\n" + e.getMessage());
+            outputArea.setText("Execution error:\n" + e.getMessage());
             e.printStackTrace();
         }
     }
 
+    /**
+     * Executes the user's code with predefined test cases and returns the output or error.
+     *
+     * @param code     The user's code.
+     * @param lang     The selected programming language.
+     * @param exercise The selected exercise.
+     * @return The result as a string.
+     */
     private String executeUserCode(String code, Language lang, Exercise exercise) {
         try {
             FusionneurCode3 fusionneur = new FusionneurCode3();
             String langName = lang.getName().toLowerCase();
 
             FusionneurCode3.ResultatExecution resultat;
-            String codeToExecute;
+            String tests = generateAutomaticTests(lang, exercise);
+            String codeToExecute = code + "\n" + tests;
 
             if (langName.equals("python") || langName.equals("c") || langName.equals("java")) {
-                String tests = genererTestsAutomatiques(lang, exercise);
-                codeToExecute = code + "\n" + tests;
-
-                resultat = fusionneur.executerCode(
-                        lang.getName(),
-                        codeToExecute,
-                        "",
-                        -1
-                );
+                resultat = fusionneur.executerCode(lang.getName(), codeToExecute, "", -1);
             } else {
-                String tests = genererTestsAutomatiques(lang, exercise);
-                codeToExecute = code + "\n" + tests;
-
-                resultat = fusionneur.executerCode(
-                        lang.getName(),
-                        code,
-                        exercise.getBaseCode(),
-                        exercise.getLineCode()
-                );
+                resultat = fusionneur.executerCode(lang.getName(), code, exercise.getBaseCode(), exercise.getLineCode());
             }
 
             if (resultat.getCodeRetour() == 0) {
-                String sortie = resultat.getSortieStandard().trim();
-                String sortieAttendue = genererSortieAttendue(lang, exercise);
-                String testsUtilises = genererTestsAutomatiques(lang, exercise);
+                String output = resultat.getSortieStandard().trim();
+                String expectedOutput = generateExpectedOutput(lang, exercise);
 
-                if (sortieAttendue != null && sortiesEgales(sortieAttendue, sortie)) {
+                if (expectedOutput != null && outputsEqual(expectedOutput, output)) {
                     int points = selectedExercise.getDifficulty();
-                    User currentUser = Session.getInstance().getCurrentUser(); // ✅ récupère user global
+                    User currentUser = Session.getInstance().getCurrentUser();
                     if (currentUser != null) {
                         UserDAO userDAO = new UserDAO();
                         try {
                             userDAO.updateUserScore(currentUser.getId(), points);
-                            System.out.println("Score updated: +" + points);
                         } catch (SQLException e) {
-                            System.err.println("Erreur lors de la mise à jour du score: " + e.getMessage());
+                            System.err.println("Score update error: " + e.getMessage());
                         }
                     }
-
-                    return " Fonction correcte !";
+                    return "Correct function!";
                 } else {
-                    return "Fonction incorrecte.\n\n"
-                            + "Cas de test utilisés :\n" + testsUtilises + "\n\n"
-                            + "Sortie attendue :\n" + sortieAttendue + "\n\n"
-                            + "Sortie obtenue :\n" + sortie;
+                    return "Incorrect function.\n\n"
+                            + "Used test cases:\n" + tests + "\n\n"
+                            + "Expected output:\n" + expectedOutput + "\n\n"
+                            + "Actual output:\n" + output;
                 }
             } else {
-                return "Erreur à l'exécution :\n\n" + resultat.getSortieErreur();
+                return "Execution error:\n\n" + resultat.getSortieErreur();
             }
 
         } catch (Exception e) {
-            return "Erreur système : " + e.getMessage();
+            return "System error: " + e.getMessage();
         }
     }
 
-    private boolean sortiesEgales(String s1, String s2) {
+    /**
+     * Compares two output strings, ignoring case and whitespace.
+     */
+    private boolean outputsEqual(String s1, String s2) {
         return s1.trim().equalsIgnoreCase(s2.trim());
     }
 
-    private String genererTestsAutomatiques(Language lang, Exercise exercise) {
+    /**
+     * Generates automatic test calls based on the selected exercise and language.
+     */
+    private String generateAutomaticTests(Language lang, Exercise exercise) {
         int exoId = exercise.getId();
         String langName = lang.getName().toLowerCase();
 
@@ -197,8 +190,7 @@ public class IncludeExerciseController {
                 if (exoId == 6) return "echo is_even(2) ? 'true' : 'false'; echo \"\\n\"; echo is_even(3) ? 'true' : 'false';";
                 break;
             case "c":
-                if (exoId == 7) return "";
-                if (exoId == 8) return "";
+                if (exoId == 7 || exoId == 8) return ""; // To be implemented
                 break;
             case "javascript":
                 if (exoId == 9) return "console.log(add(2, 3)); console.log(add(1, 2));";
@@ -208,7 +200,10 @@ public class IncludeExerciseController {
         return "";
     }
 
-    private String genererSortieAttendue(Language lang, Exercise exercise) {
+    /**
+     * Returns the expected output for the selected exercise and language.
+     */
+    private String generateExpectedOutput(Language lang, Exercise exercise) {
         int exoId = exercise.getId();
         String langName = lang.getName().toLowerCase();
 

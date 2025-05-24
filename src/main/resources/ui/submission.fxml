@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!-- FXML layout for displaying user submission statistics.
+     Shows a table of exercises with total submissions, number of successes,
+     and whether the user succeeded on the first attempt. -->
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -8,19 +13,37 @@
             style="-fx-background-color: #181829;"
             stylesheets="@/styles/style.css">
 
+    <!-- Top navigation bar with back button -->
     <top>
         <HBox alignment="TOP_LEFT">
             <Button fx:id="backButton" text="← Back" onAction="#handleBack"/>
         </HBox>
     </top>
 
+    <!-- Center content: submission table -->
     <center>
         <TableView fx:id="table" prefWidth="700" prefHeight="500">
             <columns>
-                <TableColumn fx:id="exerciseCol"   text="Exercise"        prefWidth="300"/>
-                <TableColumn fx:id="totalCol"      text="Total Subs"      prefWidth="100"/>
-                <TableColumn fx:id="successCol"    text="Total successes"       prefWidth="150"/>
-                <TableColumn fx:id="firstAttemptCol"    text="First Success " prefWidth="150"/>
+
+                <!-- Column showing the exercise name -->
+                <TableColumn fx:id="exerciseCol"
+                             text="Exercise"
+                             prefWidth="300"/>
+
+                <!-- Column showing total number of submissions -->
+                <TableColumn fx:id="totalCol"
+                             text="Total Subs"
+                             prefWidth="100"/>
+
+                <!-- Column showing how many were successful -->
+                <TableColumn fx:id="successCol"
+                             text="Total Successes"
+                             prefWidth="150"/>
+
+                <!-- Column showing if the first submission was a success -->
+                <TableColumn fx:id="firstAttemptCol"
+                             text="First Success"
+                             prefWidth="150"/>
             </columns>
         </TableView>
     </center>

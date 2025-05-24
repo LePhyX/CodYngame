@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- FXML layout for the INCLUDE mode selection screen.
+     Allows the user to choose a programming language and an exercise before proceeding. -->
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
@@ -7,24 +10,34 @@
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="controller.IncludeChoiceController"
             stylesheets="@/styles/include.css"
-            prefWidth="800" prefHeight="600" styleClass="root">
+            prefWidth="800" prefHeight="600"
+            styleClass="root">
 
+    <!-- Back button in the top-left corner -->
     <Button fx:id="backButton"
             text="← Back"
             onAction="#handleBack"
             styleClass="back-button"
             layoutX="20" layoutY="20"/>
 
+    <!-- Main vertical container for the selection interface -->
+    <VBox alignment="TOP_CENTER" spacing="20"
+          AnchorPane.topAnchor="50"
+          AnchorPane.leftAnchor="50"
+          AnchorPane.rightAnchor="50">
 
-    <VBox alignment="TOP_CENTER" spacing="20" AnchorPane.topAnchor="50" AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50">
-
+        <!-- Title label -->
         <Label text="Choose your language and exercise" styleClass="title-label"/>
 
+        <!-- Language selector combo box -->
         <HBox spacing="10" alignment="CENTER_LEFT">
             <Label text="Language :" styleClass="field-label"/>
-            <ComboBox fx:id="languageComboBox" promptText="Select..." styleClass="custom-combobox"/>
+            <ComboBox fx:id="languageComboBox"
+                      promptText="Select..."
+                      styleClass="custom-combobox"/>
         </HBox>
 
+        <!-- Table displaying exercises filtered by language -->
         <TableView fx:id="exerciseTable" prefHeight="300" styleClass="custom-table">
             <columns>
                 <TableColumn fx:id="titleColumn" text="Title" prefWidth="200"/>
@@ -33,7 +46,10 @@
             </columns>
         </TableView>
 
-        <Button text="GO" onAction="#handleGo" styleClass="go-button"/>
+        <!-- Button to validate and proceed to the selected exercise -->
+        <Button text="GO"
+                onAction="#handleGo"
+                styleClass="go-button"/>
 
     </VBox>
 </AnchorPane>

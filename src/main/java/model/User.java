@@ -1,16 +1,32 @@
 package model;
 
+import java.sql.Timestamp;
+
+/**
+ * Represents a user of the application.
+ * Stores basic credentials, score, and registration date.
+ */
 public class User {
+
     private int id;
     private String username;
     private String email;
     private String passwordHash;
     private int score;
-    private java.sql.Timestamp createdAt;
+    private Timestamp createdAt;
 
+    /**
+     * Default constructor.
+     */
     public User() {}
 
-    // Constructeur utilisé lors de l'inscription
+    /**
+     * Constructor used during user registration.
+     *
+     * @param username     the username chosen by the user
+     * @param email        the email address
+     * @param passwordHash the hashed password
+     */
     public User(String username, String email, String passwordHash) {
         this.username = username;
         this.email = email;
@@ -18,7 +34,15 @@ public class User {
         this.score = 0;
     }
 
-    // ✅ Constructeur utilisé pour charger un User depuis la BDD
+    /**
+     * Constructor used to load a user from the database.
+     *
+     * @param id           the user ID
+     * @param username     the username
+     * @param email        the email
+     * @param passwordHash the hashed password
+     * @param score        the current score
+     */
     public User(int id, String username, String email, String passwordHash, int score) {
         this.id = id;
         this.username = username;
@@ -27,22 +51,71 @@ public class User {
         this.score = score;
     }
 
-    public java.sql.Timestamp getCreatedAt(){return createdAt;}
+    /**
+     * Gets the user's creation timestamp.
+     *
+     * @return the registration timestamp
+     */
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
 
-    public void setCreatedAt(java.sql.Timestamp createdAt) {    this.createdAt = createdAt;}
+    /**
+     * Sets the registration timestamp.
+     *
+     * @param createdAt the timestamp to set
+     */
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    /** @return the user ID */
+    public int getId() {
+        return id;
+    }
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    /** @param id the user ID to set */
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    /** @return the username */
+    public String getUsername() {
+        return username;
+    }
 
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    /** @param username the username to set */
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-    public int getScore() { return score; }
-    public void setScore(int score) { this.score = score; }
+    /** @return the email address */
+    public String getEmail() {
+        return email;
+    }
+
+    /** @param email the email address to set */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    /** @return the hashed password */
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    /** @param passwordHash the password hash to set */
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    /** @return the user's score */
+    public int getScore() {
+        return score;
+    }
+
+    /** @param score the score to set */
+    public void setScore(int score) {
+        this.score = score;
+    }
 }

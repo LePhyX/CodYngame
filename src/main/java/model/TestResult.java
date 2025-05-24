@@ -21,18 +21,19 @@ public class TestResult {
     /** Error message or standard error output if the program failed */
     private String errorMessage;
 
-    /** Default constructor */
-    public TestResult() {
-    }
+    /**
+     * Default constructor.
+     */
+    public TestResult() {}
 
     /**
      * Parameterized constructor.
      *
-     * @param input          The input data for the test
-     * @param expectedOutput The expected output
-     * @param actualOutput   The actual output produced by the user's code
-     * @param passed         Whether the test passed or not
-     * @param errorMessage   Error message if any, else null or empty
+     * @param input          The input string passed to the program
+     * @param expectedOutput The expected result
+     * @param actualOutput   The actual output from the program
+     * @param passed         true if the test passed
+     * @param errorMessage   error output or exception details if the test failed
      */
     public TestResult(String input, String expectedOutput, String actualOutput, boolean passed, String errorMessage) {
         this.input = input;
@@ -42,44 +43,52 @@ public class TestResult {
         this.errorMessage = errorMessage;
     }
 
-    // Getters and setters
-
+    /** @return the input used in the test */
     public String getInput() {
         return input;
     }
 
+    /** @param input the input string to set */
     public void setInput(String input) {
         this.input = input;
     }
 
+    /** @return the expected output */
     public String getExpectedOutput() {
         return expectedOutput;
     }
 
+    /** @param expectedOutput the expected output string to set */
     public void setExpectedOutput(String expectedOutput) {
         this.expectedOutput = expectedOutput;
     }
 
+    /** @return the actual output produced by the code */
     public String getActualOutput() {
         return actualOutput;
     }
 
+    /** @param actualOutput the actual result to set */
     public void setActualOutput(String actualOutput) {
         this.actualOutput = actualOutput;
     }
 
+    /** @return true if the test passed, false otherwise */
     public boolean isPassed() {
         return passed;
     }
 
+    /** @param passed test result flag (true if passed) */
     public void setPassed(boolean passed) {
         this.passed = passed;
     }
 
+    /** @return any error message or exception output */
     public String getErrorMessage() {
         return errorMessage;
     }
 
+    /** @param errorMessage the error message to store */
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }

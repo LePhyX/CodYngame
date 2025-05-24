@@ -9,11 +9,22 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/**
+ * Controller class for the dashboard view.
+ * Handles navigation to other parts of the application.
+ */
 public class DashboardController {
 
     @FXML
     private Button backButton;
 
+    @FXML
+    private Button includeButton;
+
+    /**
+     * Handles the "Back" button click.
+     * Redirects the user to the home screen.
+     */
     @FXML
     private void handleBack() {
         try {
@@ -24,16 +35,15 @@ public class DashboardController {
             stage.setScene(new Scene(root));
             stage.setTitle("Home");
             stage.show();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
-    @FXML
-    private Button includeButton; // 🔧 Nécessaire pour accéder à la scène
-
+    /**
+     * Handles the "INCLUDE" button click.
+     * Redirects the user to the language and exercise selection page.
+     */
     @FXML
     private void handleIncludeClick() {
         try {
@@ -42,18 +52,22 @@ public class DashboardController {
 
             Stage stage = (Stage) includeButton.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("Faites un choix");
+            stage.setTitle("Choose an option");
             stage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println(" Erreur lors du chargement de la page include-choice.fxml");
+            System.out.println("Error while loading include-choice.fxml page.");
         }
     }
 
+    /**
+     * Handles the "STDIN/STDOUT" button click.
+     * Placeholder for future redirection to the corresponding exercise page.
+     */
     @FXML
     private void handleStdinClick() {
-        System.out.println("➡ STDIN/STDOUT exercise selected.");
-        // TODO : rediriger vers la page des exercices STDIN/STDOUT
+        System.out.println("STDIN/STDOUT exercise selected.");
+        // TODO: redirect to the STDIN/STDOUT exercise page
     }
 }

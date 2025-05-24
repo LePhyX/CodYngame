@@ -5,79 +5,80 @@ import java.nio.file.*;
 import java.util.*;
 
 /**
- * Utility class responsible for compiling and executing user-submitted code
- * in various programming languages.
+ * Utility class responsible for compiling and executing user-submitted source code
+ * in various programming languages (Java, C, Python).
  */
 public class CodeExecutor {
 
     /**
-     * Holds the result of code execution.
+     * Represents the result of code execution.
+     * Contains standard output, standard error, and the process exit code.
      */
     public static class ExecutionResult {
-        /** Output written to standard output (stdout) by the program */
+        /** Standard output produced by the executed code */
         public String stdout;
 
-        /** Output written to standard error (stderr) by the program */
+        /** Standard error output produced by the executed code */
         public String stderr;
 
-        /** Exit code of the process (0 usually means success) */
+        /** Exit code of the execution process (0 usually means success) */
         public int exitCode;
     }
 
     /**
-     * Compiles and executes the provided source code in the selected language,
-     * feeding the given input to the program.
+     * Compiles and executes the provided source code in the given language,
+     * optionally passing input to the standard input of the process.
      *
-     * @param code     The source code written by the user
-     * @param language The language of the code ("java", "c", "python")
-     * @param input    Input string to send to standard input (stdin)
-     * @return An ExecutionResult containing stdout, stderr, and the exit code
-     * @throws IOException If an I/O error occurs
-     * @throws InterruptedException If the execution is interrupted
+     * @param code     The source code to execute
+     * @param language The programming language ("java", "c", "python")
+     * @param input    Input string to provide to the program via stdin
+     * @return An {@link ExecutionResult} containing stdout, stderr, and exit code
+     * @throws IOException          If an I/O error occurs during execution
+     * @throws InterruptedException If the process is interrupted
      */
     public static ExecutionResult runCode(String code, String language, String input)
             throws IOException, InterruptedException {
 
-        // Create a temporary directory to store source and compiled files
+        // Create a temporary directory to work in
         Path tempDir = Files.createTempDirectory("codeyngame_");
 
         File sourceFile;
         List<String> compileCmd = new ArrayList<>();
         List<String> execCmd = new ArrayList<>();
 
-        // Determine how to compile and execute based on the language
+        // Determine behavior based on the language
         switch (language.toLowerCase()) {
             case "java":
-                // Save code to Main.java
+                // Write Java code to Main.java
                 sourceFile = tempDir.resolve("Main.java").toFile();
                 Files.writeString(sourceFile.toPath(), code);
 
-                // Compile using javac
+                // Compile with javac
                 compileCmd = List.of("javac", sourceFile.getAbsolutePath());
 
-                // Command to run compiled Java class
+                // Execute the compiled class
                 execCmd = List.of("java", "-cp", tempDir.toString(), "Main");
                 break;
 
             case "c":
-                // Save code to main.c
+                // Write C code to main.c
                 sourceFile = tempDir.resolve("main.c").toFile();
                 Files.writeString(sourceFile.toPath(), code);
 
-                // Compile using gcc
+                // Compile with gcc
                 compileCmd = List.of("gcc", sourceFile.getAbsolutePath(), "-o",
-                                     tempDir.resolve("main").toString());
+                        tempDir.resolve("main").toString());
 
-                // Command to run compiled C program
+                // Execute compiled binary
                 execCmd = List.of(tempDir.resolve("main").toString());
                 break;
 
             case "python":
-                // Save code to main.py (Python is interpreted, no compile step)
+                // Write Python code to main.py (no compilation needed)
                 sourceFile = tempDir.resolve("main.py").toFile();
                 Files.writeString(sourceFile.toPath(), code);
 
-                // Command to interpret Python script
+                // Execute using python interpreter
                 execCmd = List.of("python3", sourceFile.getAbsolutePath());
                 break;
 
@@ -85,33 +86,33 @@ public class CodeExecutor {
                 throw new IllegalArgumentException("Unsupported language: " + language);
         }
 
-        // Compile the code if a compile command is defined
+        // Compile the source code if required
         if (!compileCmd.isEmpty()) {
             Process compile = new ProcessBuilder(compileCmd)
                     .redirectErrorStream(true)
                     .start();
-            compile.waitFor(); // Wait for the compiler to finish
+            compile.waitFor(); // Wait for compilation to complete
         }
 
-        // Execute the program
+        // Execute the compiled/interpreted code
         ProcessBuilder execBuilder = new ProcessBuilder(execCmd);
         Process process = execBuilder.start();
 
-        // Feed the input string to the program's standard input
+        // Send the provided input to the program's standard input
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(process.getOutputStream()))) {
             writer.write(input);
             writer.flush();
         }
 
-        // Capture the standard output and standard error of the process
+        // Capture output and error streams
         String stdout = new String(process.getInputStream().readAllBytes());
         String stderr = new String(process.getErrorStream().readAllBytes());
 
-        // Wait for the process to finish and retrieve the exit code
+        // Wait for process to terminate and get the exit code
         int exitCode = process.waitFor();
 
-        // Package the results into an ExecutionResult instance
+        // Populate result object
         ExecutionResult result = new ExecutionResult();
         result.stdout = stdout;
         result.stderr = stderr;

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- FXML layout for the Edit Profile screen.
+     Allows the user to update their username, email, and password. -->
+
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 
@@ -7,37 +10,39 @@
             fx:controller="controller.EditProfileController"
             prefWidth="800" prefHeight="600"
             style="-fx-background-color: #181829;">
+
+    <!-- Top navigation bar with back button -->
     <top>
         <HBox alignment="TOP_LEFT">
             <Button fx:id="backButton" text="← Back" onAction="#handleBack"/>
         </HBox>
     </top>
 
-
-
-
+    <!-- Center form for editing user profile -->
     <center>
         <VBox alignment="CENTER" spacing="20">
+
+            <!-- Section title -->
             <Label text="Edit Profile"
                    style="-fx-text-fill: #00e0ff; -fx-font-size: 24px; -fx-font-weight: bold;"/>
 
-            <!-- 🔤 Champ pour modifier le nom d'utilisateur -->
+            <!-- Username field -->
             <Label text="New Username :" style="-fx-text-fill: #63ff95;"/>
             <TextField fx:id="usernameField" promptText="Enter new username" maxWidth="300"/>
 
-            <!-- 📧 Modifier l'email -->
+            <!-- Email field -->
             <Label text="New Email" style="-fx-text-fill: #63ff95;"/>
             <TextField fx:id="emailField" promptText="Enter new email" maxWidth="300"/>
 
-            <!-- 🔐 Ancien mot de passe -->
+            <!-- Current password field -->
             <Label text="Current Password" style="-fx-text-fill: #63ff95;"/>
             <PasswordField fx:id="currentPasswordField" promptText="Enter current password" maxWidth="300"/>
 
-            <!-- 🔒 Nouveau mot de passe -->
+            <!-- New password field -->
             <Label text="New Password" style="-fx-text-fill: #63ff95;"/>
             <PasswordField fx:id="newPasswordField" promptText="Enter new password" maxWidth="300"/>
 
-
+            <!-- Confirm changes button -->
             <Button fx:id="confirmButton"
                     text="Confirm"
                     onAction="#handleConfirm"

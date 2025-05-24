@@ -15,6 +15,10 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+/**
+ * Controller for handling user authentication (login and signup).
+ * Manages UI toggle between modes and handles input validation and redirection.
+ */
 public class LoginController {
 
     @FXML private TextField usernameField;
@@ -28,34 +32,46 @@ public class LoginController {
     private boolean isSignupMode = false;
     private final UserDAO dao = new UserDAO();
 
+    /**
+     * Initializes the login screen with the default mode.
+     */
     @FXML
     public void initialize() {
         updateModeUI();
     }
 
+    /**
+     * Switches between login and signup modes.
+     */
     @FXML
     private void toggleMode() {
         isSignupMode = !isSignupMode;
         updateModeUI();
     }
 
+    /**
+     * Updates the UI according to the current mode (login/signup).
+     */
     private void updateModeUI() {
         if (isSignupMode) {
-            modeLabel.setText("Créer un compte");
+            modeLabel.setText("Create an account");
             emailField.setVisible(true);
             emailField.setManaged(true);
-            actionButton.setText("S'inscrire");
-            switchModeButton.setText("Déjà inscrit ? Se connecter");
+            actionButton.setText("Sign up");
+            switchModeButton.setText("Already registered? Log in");
         } else {
-            modeLabel.setText("Connexion");
+            modeLabel.setText("Login");
             emailField.setVisible(false);
             emailField.setManaged(false);
-            actionButton.setText("Connexion");
-            switchModeButton.setText("Pas encore de compte ? S'inscrire");
+            actionButton.setText("Login");
+            switchModeButton.setText("Don't have an account? Sign up");
         }
         errorLabel.setText("");
     }
 
+    /**
+     * Handles user action: either attempts signup or login depending on the current mode.
+     */
     @FXML
     private void handleAction() {
         String username = usernameField.getText().trim();
@@ -66,58 +82,51 @@ public class LoginController {
             String email = emailField.getText().trim();
 
             if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                errorLabel.setText("Tous les champs sont requis !");
+                errorLabel.setText("All fields are required!");
                 return;
             }
 
             if (dao.userExists(username)) {
-                errorLabel.setText("Ce nom d'utilisateur est déjà utilisé.");
+                errorLabel.setText("This username is already taken.");
                 return;
             }
 
             User newUser = new User(username, email, hash);
             if (dao.addUser(newUser)) {
-                errorLabel.setText("Compte créé avec succès !");
-                toggleMode();  // revient en mode connexion
+                errorLabel.setText("Account created successfully!");
+                toggleMode();  // Switch back to login mode
             } else {
-                errorLabel.setText("Erreur inconnue lors de l'inscription.");
+                errorLabel.setText("Unknown error occurred during signup.");
             }
 
         } else {
-            // Mode connexion
+            // Login mode
             if (dao.checkLogin(username, hash)) {
-                // 1) Récupérer l'objet User complet
                 User user = dao.getUserByUsername(username);
-                // 2) Le stocker dans la session
                 Session.getInstance().setCurrentUser(user);
-                // 3) Charger la Home
                 loadHome();
             } else {
-                errorLabel.setText("Nom d'utilisateur ou mot de passe incorrect.");
+                errorLabel.setText("Incorrect username or password.");
             }
         }
     }
 
     /**
-     * Redirection vers la page d'accueil après connexion
+     * Redirects the user to the home screen after successful login.
      */
     private void loadHome() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/home.fxml"));
             Parent root = loader.load();
 
-            // Plus besoin de passer manuellement le username :
-            // HomeController controller = loader.getController();
-            // controller.setUsername(username);
-
             Stage stage = (Stage) actionButton.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("Accueil");
+            stage.setTitle("Home");
             stage.show();
 
         } catch (Exception e) {
             e.printStackTrace();
-            errorLabel.setText("Erreur lors du chargement de l'accueil.");
+            errorLabel.setText("Error while loading the home screen.");
         }
     }
 }

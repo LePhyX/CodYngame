@@ -4,52 +4,52 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a collection (set) of test cases for a programming exercise.
- * Provides methods to add and retrieve tests.
+ * Represents a collection of test cases for a programming exercise.
+ * Useful for grouping multiple {@link Test} instances in one structure.
  */
 public class TestSet {
 
-    /** List of individual tests */
+    /** Internal list of test cases */
     private List<Test> tests;
 
     /**
-     * Default constructor initializes the internal list.
+     * Constructs an empty TestSet.
      */
     public TestSet() {
         tests = new ArrayList<>();
     }
 
     /**
-     * Adds a test case to the set.
+     * Adds a test case to the current set.
      *
-     * @param test The Test instance to add
+     * @param test the {@link Test} to add
      */
     public void addTest(Test test) {
         tests.add(test);
     }
 
     /**
-     * Returns the list of all tests.
+     * Returns all test cases in the set.
      *
-     * @return List of Test objects
+     * @return a {@link List} of {@link Test} objects
      */
     public List<Test> getTests() {
         return tests;
     }
 
     /**
-     * Sets the list of tests (replaces the existing list).
+     * Replaces the current list of test cases with a new one.
      *
-     * @param tests List of Test objects to set
+     * @param tests the new {@link List} of {@link Test} objects
      */
     public void setTests(List<Test> tests) {
         this.tests = tests;
     }
 
     /**
-     * Returns the number of tests in this set.
+     * Returns the number of test cases currently in the set.
      *
-     * @return Number of tests
+     * @return the size of the test set
      */
     public int size() {
         return tests.size();

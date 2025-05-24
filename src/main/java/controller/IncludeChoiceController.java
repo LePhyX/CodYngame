@@ -12,11 +12,14 @@ import model.Exercise;
 import model.ExerciseDAO;
 import model.Language;
 import model.LanguageDAO;
-import utils.Session;
 
 import java.net.URL;
 import java.util.List;
 
+/**
+ * Controller for selecting a programming language and an INCLUDE-type exercise.
+ * Displays a list of available exercises for the selected language.
+ */
 public class IncludeChoiceController {
 
     @FXML private ComboBox<Language> languageComboBox;
@@ -24,14 +27,15 @@ public class IncludeChoiceController {
     @FXML private TableColumn<Exercise, String> titleColumn;
     @FXML private TableColumn<Exercise, String> typeColumn;
     @FXML private TableColumn<Exercise, Integer> difficultyColumn;
+    @FXML private Button backButton;
 
     private final LanguageDAO languageDAO = new LanguageDAO();
     private final ExerciseDAO exerciseDAO = new ExerciseDAO();
 
-    @FXML private Button backButton;
-
-    // ❌ Supprimé : private User currentUser;
-
+    /**
+     * Handles the "Back" button click.
+     * Returns to the dashboard view.
+     */
     @FXML
     private void handleBack() {
         try {
@@ -48,6 +52,10 @@ public class IncludeChoiceController {
         }
     }
 
+    /**
+     * Initializes the view with available languages and prepares table columns.
+     * When a language is selected, exercises of type "INCLUDE" are displayed.
+     */
     @FXML
     public void initialize() {
         List<Language> languages = languageDAO.getAllLanguages();
@@ -66,6 +74,10 @@ public class IncludeChoiceController {
         });
     }
 
+    /**
+     * Handles the "Go" button click.
+     * Opens the exercise solving view with the selected language and exercise.
+     */
     @FXML
     private void handleGo() {
         Language selectedLang = languageComboBox.getValue();
@@ -81,17 +93,15 @@ public class IncludeChoiceController {
         }
 
         try {
-            System.out.println("Chemin réel : " + getClass().getResource("/ui/IncludeExercise.fxml"));
-
             URL fxmlUrl = getClass().getResource("/ui/IncludeExercise.fxml");
             System.out.println("FXML URL: " + fxmlUrl);
             System.out.println("FXML Exists: " + (fxmlUrl != null));
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/IncludeExercise.fxml"));
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
 
             IncludeExerciseController controller = loader.getController();
-            controller.initData(selectedLang, selectedExercise); // ✅ utilisateur non passé manuellement
+            controller.initData(selectedLang, selectedExercise);
 
             Stage stage = (Stage) languageComboBox.getScene().getWindow();
             stage.setScene(new Scene(root));
@@ -99,7 +109,7 @@ public class IncludeChoiceController {
             stage.show();
 
         } catch (Exception e) {
-            System.err.println("Erreur lors du chargement de IncludeExercise.fxml : " + e.getMessage());
+            System.err.println("Error loading IncludeExercise.fxml: " + e.getMessage());
             e.printStackTrace();
         }
     }

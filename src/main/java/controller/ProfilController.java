@@ -17,6 +17,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Controller for the user profile view.
+ * Displays the user's information, score, and allows navigation to related features.
+ */
 public class ProfilController {
 
     @FXML private Button backButton;
@@ -30,30 +34,37 @@ public class ProfilController {
     @FXML private Label passwordLabel;
     @FXML private Button editButton;
 
+    /**
+     * Initializes the profile view with the current user's information.
+     * Displays username, email, registration date, and dynamic score.
+     */
     @FXML
     public void initialize() {
         User u = Session.getInstance().getCurrentUser();
 
-        usernameLabel.setText("User name : "  + u.getUsername());
-        emailLabel.setText   ("Email : "      + u.getEmail());
-        passwordLabel.setText("Password : "   + "********");
+        usernameLabel.setText("User name: "  + u.getUsername());
+        emailLabel.setText("Email: "         + u.getEmail());
+        passwordLabel.setText("Password: "   + "********");
 
         try (Connection conn = DatabaseConnection.getConnection()) {
             SubmissionDAO dao = new SubmissionDAO(conn);
-            int score = dao.getScoreByUser(u.getId());  // Score dynamique
-            scoreLabel.setText("Score : " + score);
+            int score = dao.getScoreByUser(u.getId());
+            scoreLabel.setText("Score: " + score);
         } catch (SQLException e) {
             e.printStackTrace();
-            scoreLabel.setText("Score : (erreur)");
+            scoreLabel.setText("Score: (error)");
         }
 
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy 'à' HH'h'mm");
-        createdAtLabel.setText("Registered since : " + u.getCreatedAt().toLocalDateTime().format(fmt));
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy 'at' HH'h'mm");
+        createdAtLabel.setText("Registered since: " + u.getCreatedAt().toLocalDateTime().format(fmt));
 
         submissionsButton.setText("View Submissions");
-
     }
 
+    /**
+     * Handles the Back button click.
+     * Returns to the home screen.
+     */
     @FXML
     private void handleBack() {
         try {
@@ -66,6 +77,9 @@ public class ProfilController {
         }
     }
 
+    /**
+     * Opens the profile editing screen.
+     */
     @FXML
     private void handleEdit() {
         try {
@@ -78,6 +92,9 @@ public class ProfilController {
         }
     }
 
+    /**
+     * Opens the user's submission history page.
+     */
     @FXML
     private void handleSubmissions() {
         try {
@@ -91,13 +108,21 @@ public class ProfilController {
         }
     }
 
+    /**
+     * Handles the success filter button.
+     * (To be implemented: redirect to success submissions.)
+     */
     @FXML
     private void handleSuccess() {
-        System.out.println("✅ Aller vers la page des réussites...");
+        System.out.println("Go to the successful submissions page...");
     }
 
+    /**
+     * Handles the failure filter button.
+     * (To be implemented: redirect to failed submissions.)
+     */
     @FXML
     private void handleFails() {
-        System.out.println("❌ Aller vers la page des échecs...");
+        System.out.println("Go to the failed submissions page...");
     }
 }

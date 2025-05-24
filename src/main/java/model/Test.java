@@ -2,17 +2,17 @@ package model;
 
 /**
  * Represents a single test case for a programming exercise.
- * Contains the input, the expected output, and an optional identifier.
+ * Stores the test ID, the input string, and the expected output.
  */
 public class Test {
 
-    /** Unique identifier or number of the test case */
+    /** Unique identifier of the test case */
     private int id;
 
-    /** Input data provided to the program for this test */
+    /** Input data provided to the program */
     private String input;
 
-    /** Expected output that the program should produce */
+    /** Expected output the program should return */
     private String expectedOutput;
 
     /**
@@ -21,11 +21,11 @@ public class Test {
     public Test() {}
 
     /**
-     * Parameterized constructor.
-     * 
-     * @param id            Unique identifier of the test case
-     * @param input         Input string for the test
-     * @param expectedOutput Expected output string for the test
+     * Full constructor.
+     *
+     * @param id             the unique ID of the test
+     * @param input          the input string to pass to the program
+     * @param expectedOutput the output expected from the program
      */
     public Test(int id, String input, String expectedOutput) {
         this.id = id;
@@ -33,28 +33,32 @@ public class Test {
         this.expectedOutput = expectedOutput;
     }
 
-    // Getters and setters
-
+    /** @return the test ID */
     public int getId() {
         return id;
     }
 
+    /** @param id the test ID to set */
     public void setId(int id) {
         this.id = id;
     }
 
+    /** @return the input string */
     public String getInput() {
         return input;
     }
 
+    /** @param input the input string to set */
     public void setInput(String input) {
         this.input = input;
     }
 
+    /** @return the expected output string */
     public String getExpectedOutput() {
         return expectedOutput;
     }
 
+    /** @param expectedOutput the expected output to set */
     public void setExpectedOutput(String expectedOutput) {
         this.expectedOutput = expectedOutput;
     }

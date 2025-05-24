@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- FXML layout for the login/register screen.
+     Allows switching between login and registration modes. -->
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -7,6 +10,7 @@
             fx:controller="controller.LoginController"
             style="-fx-background-color: linear-gradient(to bottom, #1a1a2e, #16213e);">
 
+    <!-- Centered container for the form elements -->
     <VBox alignment="CENTER" spacing="15"
           AnchorPane.leftAnchor="0"
           AnchorPane.rightAnchor="0"
@@ -14,32 +18,46 @@
           AnchorPane.bottomAnchor="0"
           style="-fx-padding: 30; -fx-background-color: rgba(255,255,255,0.05); -fx-background-radius: 20;">
 
+        <!-- Application title -->
         <Label text="CodYngame"
                style="-fx-font-size: 28px; -fx-text-fill: #00ffff; -fx-font-weight: bold;" />
 
+        <!-- Dynamic label indicating current mode (Login or Signup) -->
         <Label fx:id="modeLabel"
                style="-fx-text-fill: white; -fx-font-size: 18px;" />
 
+        <!-- Username field -->
         <TextField fx:id="usernameField"
                    promptText="User name"
-                   styleClass="input" maxWidth="300"/>
+                   styleClass="input"
+                   maxWidth="300"/>
 
+        <!-- Email field (used only in registration mode) -->
         <TextField fx:id="emailField"
                    promptText="Email"
-                   styleClass="input" visible="false" managed="false" maxWidth="300"/>
+                   styleClass="input"
+                   visible="false"
+                   managed="false"
+                   maxWidth="300"/>
 
+        <!-- Password field -->
         <PasswordField fx:id="passwordField"
                        promptText="Password"
-                       styleClass="input" maxWidth="300"/>
+                       styleClass="input"
+                       maxWidth="300"/>
 
+        <!-- Error label (displayed when form validation fails) -->
         <Label fx:id="errorLabel"
                style="-fx-text-fill: #ff5050;"/>
 
+        <!-- Primary action button: Login or Register -->
         <Button fx:id="actionButton"
                 text="Connection"
                 onAction="#handleAction"
-                styleClass="main-button" maxWidth="200"/>
+                styleClass="main-button"
+                maxWidth="200"/>
 
+        <!-- Toggle between login and registration modes -->
         <Button fx:id="switchModeButton"
                 text="No account yet? Register"
                 onAction="#toggleMode"

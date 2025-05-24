@@ -8,19 +8,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO pour gérer les relations entre exercices et langages
+ * DAO for managing the many-to-many relationship between exercises and programming languages.
+ * Maps entries in the ExerciseLanguage table.
  */
 public class ExerciseLanguageDAO {
 
     private final Connection conn;
 
-    // Constructeur avec connexion active
+    /**
+     * Constructor with active database connection.
+     *
+     * @param conn the database connection to use
+     */
     public ExerciseLanguageDAO(Connection conn) {
         this.conn = conn;
     }
 
     /**
-     * Insère une relation (exercice_id, language_id) dans la table ExerciseLanguage
+     * Inserts a relation (exercise_id, language_id) into the ExerciseLanguage table.
+     *
+     * @param exerciseId the ID of the exercise
+     * @param languageId the ID of the language
+     * @return true if insertion succeeded, false otherwise
      */
     public boolean insertRelation(int exerciseId, int languageId) {
         String sql = "INSERT INTO ExerciseLanguage (exercise_id, language_id) VALUES (?, ?)";
@@ -29,19 +38,21 @@ public class ExerciseLanguageDAO {
             stmt.setInt(1, exerciseId);
             stmt.setInt(2, languageId);
             int rows = stmt.executeUpdate();
-            System.out.println(" Relation insérée : exercice " + exerciseId + " ↔ langage " + languageId);
+
+            System.out.println("Relation inserted: exercise " + exerciseId + " ↔ language " + languageId);
             return rows > 0;
 
         } catch (SQLException e) {
-            System.err.println(" Erreur insertRelation : " + e.getMessage());
+            System.err.println("Error insertRelation: " + e.getMessage());
             return false;
         }
     }
 
     /**
-     * Récupère tous les langages associés à un exercice donné
-     * @param exerciseId :  l'ID de l'exercice
-     * @return :  liste des IDs de langages
+     * Retrieves all language IDs associated with a given exercise.
+     *
+     * @param exerciseId the ID of the exercise
+     * @return a list of language IDs associated with the exercise
      */
     public List<Integer> getByExerciseId(int exerciseId) {
         List<Integer> languageIds = new ArrayList<>();
@@ -51,15 +62,15 @@ public class ExerciseLanguageDAO {
             stmt.setInt(1, exerciseId);
             ResultSet rs = stmt.executeQuery();
 
+            // Loop through the results and collect each language ID
             while (rs.next()) {
                 languageIds.add(rs.getInt("language_id"));
             }
 
         } catch (SQLException e) {
-            System.err.println(" Erreur getByExerciseId : " + e.getMessage());
+            System.err.println("Error getByExerciseId: " + e.getMessage());
         }
 
         return languageIds;
     }
 }
-
